@@ -1,6 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { Timeline } from "./components/timeline";
-import { Menu } from "./components/menu";
+import {
+  Categories,
+  Header,
+  Menu,
+  Scatter,
+  Stats,
+  Timeline,
+} from "./containers";
 
 import {
   RecoilRoot,
@@ -30,12 +36,13 @@ export const App: React.FunctionComponent<{}> = ({}) => {
   }, [appRef.current]);
 
   return (
-    <div className="App" ref={appRef}>
-      <header className="App-header"></header>
-      <div>
-        <Timeline />
-        <Menu />
-      </div>
+    <div id="app" ref={appRef}>
+      <Header />
+      <Timeline />
+      <Menu />
+      <Scatter />
+      <Stats />
+      <Categories />
     </div>
   );
 };

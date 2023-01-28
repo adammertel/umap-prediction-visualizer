@@ -1,17 +1,25 @@
 import React from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { SSizes } from "../state";
+import { SSizes, SSizesMenu } from "../state";
 
 interface IMenuProps {}
 
 export const Menu: React.FunctionComponent<IMenuProps> = ({}) => {
-  const sizes = useRecoilValue(SSizes);
+  const containerSizes = useRecoilValue(SSizesMenu);
 
   return (
-    <div className="container" id="container-menu">
+    <div
+      className="container"
+      id="container-menu"
+      style={{
+        position: "absolute",
+        top: containerSizes.y,
+        left: containerSizes.x,
+        width: containerSizes.w,
+        height: containerSizes.h,
+      }}
+    >
       menu
-      <div>w: {sizes.w}</div>
-      <div>h: {sizes.h}</div>
     </div>
   );
 };

@@ -31,7 +31,7 @@ code {
 }
 
 .container {
-  background-color: blue;
+  background-color: lightblue;
   overflow: hidden;
 }
 
@@ -39,5 +39,12 @@ code {
   .heading-text {
     margin: 5px;
     height: 100%;
+  }
+}
+
+#container-scatter {
+  svg {
+    position: absolute;
+    background-color: rgba(45, 72, 200, 0.2);
   }
 }

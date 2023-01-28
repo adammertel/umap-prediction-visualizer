@@ -15,11 +15,28 @@ export const DataLoader: React.FunctionComponent<IDataLoaderProps> = ({}) => {
   useEffect(() => {
     console.log("loading data");
     d3.csv(process.env.PUBLIC_URL + "/live.csv").then((data: any) => {
-      setDataLiv(data);
+      setDataLiv(
+        data.map((d: any) => {
+          return {
+            x: parseFloat(d["0"]),
+            y: parseFloat(d["1"]),
+            cat: d["prediction"],
+            date: d["timestamp"],
+          };
+        })
+      );
       setLoadedRef(true);
     });
     d3.csv(process.env.PUBLIC_URL + "/reference.csv").then((data: any) => {
-      setDataRef(data);
+      setDataRef(
+        data.map((d: any) => {
+          return {
+            x: parseFloat(d["0"]),
+            y: parseFloat(d["1"]),
+            cat: d["label"],
+          };
+        })
+      );
       setLoadedLiv(true);
     });
   }, []);

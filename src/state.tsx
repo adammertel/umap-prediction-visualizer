@@ -4,8 +4,17 @@ import { atom, selector } from "recoil";
  * Data
  */
 
-interface IDataPointRef {}
-interface IDataPointLiv {}
+interface IDataPointRef {
+  x: number;
+  y: number;
+  cat: string;
+}
+interface IDataPointLiv {
+  x: number;
+  y: number;
+  cat: string;
+  date: Date;
+}
 
 export const SDataRef = atom<IDataPointRef[]>({
   key: "dataRef",
@@ -17,6 +26,40 @@ export const SDataLiv = atom<IDataPointLiv[]>({
   default: [],
 });
 
+export const SDataCategories = selector<string[]>({
+  key: "dataCategories",
+  get: ({ get }) => {
+    const data = get(SDataRef);
+    return Array.from(new Set(data.map((d) => d.cat)));
+  },
+});
+
+export const SDataRefExtent = selector<[number, number, number, number]>({
+  key: "dataRefExtent",
+  get: ({ get }) => {
+    const data = get(SDataRef);
+    return [
+      Math.min(...data.map((d) => d.x)),
+      Math.max(...data.map((d) => d.x)),
+      Math.min(...data.map((d) => d.y)),
+      Math.max(...data.map((d) => d.y)),
+    ];
+  },
+});
+
+export const SDataLivExtent = selector<[number, number, number, number]>({
+  key: "dataLivExtent",
+  get: ({ get }) => {
+    const data = get(SDataLiv);
+    return [
+      Math.min(...data.map((d) => d.x)),
+      Math.max(...data.map((d) => d.x)),
+      Math.min(...data.map((d) => d.y)),
+      Math.max(...data.map((d) => d.y)),
+    ];
+  },
+});
+
 /**
  * Handling sizes
  */
@@ -24,8 +67,8 @@ export const SDataLiv = atom<IDataPointLiv[]>({
 const SIZE_SETTINGS = {
   APP_P: 10,
   HEADER_H: 50,
-  TIMELINE_H: 200,
-  MENU_H: 100,
+  TIMELINE_H: 100,
+  MENU_H: 75,
   SCATTER_W: 500,
   CONTAINER_M: 5,
 };

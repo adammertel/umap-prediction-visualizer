@@ -29,3 +29,15 @@ code {
     font-size: 200px;
   }
 }
+
+.container {
+  background-color: blue;
+  overflow: hidden;
+}
+
+#container-header {
+  .heading-text {
+    margin: 5px;
+    height: 100%;
+  }
+}

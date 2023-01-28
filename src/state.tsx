@@ -24,10 +24,10 @@ export const SDataLiv = atom<IDataPointLiv[]>({
 const SIZE_SETTINGS = {
   APP_P: 10,
   HEADER_H: 50,
-  TIMELINE_H: 100,
+  TIMELINE_H: 200,
   MENU_H: 100,
-  CATEG_H: 300,
   SCATTER_W: 500,
+  CONTAINER_M: 5,
 };
 
 export const SAppW = atom<number>({
@@ -87,7 +87,10 @@ export const SSizesMenu = selector<ISizesContainer>({
       w: sizes.w - 2 * SIZE_SETTINGS.APP_P,
       h: SIZE_SETTINGS.MENU_H,
       x: SIZE_SETTINGS.APP_P,
-      y: SIZE_SETTINGS.HEADER_H + SIZE_SETTINGS.APP_P,
+      y:
+        SIZE_SETTINGS.HEADER_H +
+        SIZE_SETTINGS.APP_P +
+        1 * SIZE_SETTINGS.CONTAINER_M,
     };
   },
 });
@@ -100,7 +103,11 @@ export const SSizesTimeline = selector<ISizesContainer>({
       w: sizes.w - 2 * SIZE_SETTINGS.APP_P,
       h: SIZE_SETTINGS.TIMELINE_H,
       x: SIZE_SETTINGS.APP_P,
-      y: SIZE_SETTINGS.MENU_H + SIZE_SETTINGS.HEADER_H + SIZE_SETTINGS.APP_P,
+      y:
+        SIZE_SETTINGS.MENU_H +
+        SIZE_SETTINGS.HEADER_H +
+        SIZE_SETTINGS.APP_P +
+        2 * SIZE_SETTINGS.CONTAINER_M,
     };
   },
 });
@@ -109,48 +116,24 @@ export const SSizesScatter = selector<ISizesContainer>({
   get: ({ get }) => {
     const sizes = get(SSizes);
 
-    const h =
+    const scatterS =
       sizes.h -
       (2 * SIZE_SETTINGS.APP_P +
         SIZE_SETTINGS.HEADER_H +
         SIZE_SETTINGS.MENU_H +
-        SIZE_SETTINGS.TIMELINE_H +
-        SIZE_SETTINGS.CATEG_H);
+        SIZE_SETTINGS.TIMELINE_H) -
+      3 * SIZE_SETTINGS.CONTAINER_M;
 
     return {
-      w: h,
-      h: h,
+      w: scatterS,
+      h: scatterS,
       x: SIZE_SETTINGS.APP_P,
       y:
-        2 * SIZE_SETTINGS.APP_P +
-        SIZE_SETTINGS.HEADER_H +
-        SIZE_SETTINGS.MENU_H +
-        SIZE_SETTINGS.TIMELINE_H,
-    };
-  },
-});
-export const SSizesStats = selector<ISizesContainer>({
-  key: "sizesStats",
-  get: ({ get }) => {
-    const sizes = get(SSizes);
-
-    const hScatter =
-      sizes.h -
-      (2 * SIZE_SETTINGS.APP_P +
+        SIZE_SETTINGS.APP_P +
         SIZE_SETTINGS.HEADER_H +
         SIZE_SETTINGS.MENU_H +
         SIZE_SETTINGS.TIMELINE_H +
-        SIZE_SETTINGS.CATEG_H);
-
-    return {
-      w: sizes.w - 2 * SIZE_SETTINGS.APP_P - hScatter,
-      h: hScatter,
-      x: SIZE_SETTINGS.APP_P + hScatter,
-      y:
-        2 * SIZE_SETTINGS.APP_P +
-        SIZE_SETTINGS.HEADER_H +
-        SIZE_SETTINGS.MENU_H +
-        SIZE_SETTINGS.TIMELINE_H,
+        3 * SIZE_SETTINGS.CONTAINER_M,
     };
   },
 });
@@ -160,10 +143,17 @@ export const SSizesCategories = selector<ISizesContainer>({
     const sizes = get(SSizes);
 
     return {
-      w: sizes.w - 2 * SIZE_SETTINGS.APP_P,
-      h: SIZE_SETTINGS.CATEG_H,
-      x: SIZE_SETTINGS.APP_P,
-      y: sizes.h - SIZE_SETTINGS.APP_P - SIZE_SETTINGS.CATEG_H,
+      w:
+        sizes.w -
+        get(SSizesScatter).w -
+        2 * SIZE_SETTINGS.APP_P -
+        1 * SIZE_SETTINGS.CONTAINER_M,
+      h: get(SSizesScatter).h,
+      x:
+        SIZE_SETTINGS.APP_P +
+        get(SSizesScatter).w +
+        1 * SIZE_SETTINGS.CONTAINER_M,
+      y: get(SSizesScatter).y,
     };
   },
 });

@@ -5,7 +5,6 @@ import {
   Header,
   Menu,
   Scatter,
-  Stats,
   Timeline,
 } from "./containers";
 
@@ -43,7 +42,6 @@ export const App: React.FunctionComponent<{}> = ({}) => {
       <Timeline />
       <Menu />
       <Scatter />
-      <Stats />
       <Categories />
     </div>
   );

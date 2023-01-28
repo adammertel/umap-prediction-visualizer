@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import {
   Categories,
+  DataLoader,
   Header,
   Menu,
   Scatter,
@@ -37,6 +38,7 @@ export const App: React.FunctionComponent<{}> = ({}) => {
 
   return (
     <div id="app" ref={appRef}>
+      <DataLoader />
       <Header />
       <Timeline />
       <Menu />

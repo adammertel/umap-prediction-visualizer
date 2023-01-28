@@ -1,4 +1,28 @@
-import { atom, selector } from "recoil";
+import * as d3 from "d3";
+import {
+  atom,
+  selector,
+  useRecoilCallback,
+  useRecoilState,
+  useSetRecoilState,
+} from "recoil";
+
+/**
+ * Data
+ */
+
+interface IDataPointRef {}
+interface IDataPointLiv {}
+
+export const SDataRef = atom<IDataPointRef[]>({
+  key: "dataRef",
+  default: [],
+});
+
+export const SDataLiv = atom<IDataPointLiv[]>({
+  key: "dataLiv",
+  default: [],
+});
 
 /**
  * Handling sizes

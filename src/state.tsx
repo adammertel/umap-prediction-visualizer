@@ -27,6 +27,14 @@ export const SDataLiv = atom<IDataPointLiv[]>({
   default: [],
 });
 
+export const SDataLivFiltered = selector<IDataPointLiv[]>({
+  key: "dataLivFiltered",
+  get: ({ get }) => {
+    const data = get(SDataLiv);
+    return data;
+  },
+});
+
 export const SDataCategories = selector<Category[]>({
   key: "dataCategories",
   get: ({ get }) => {

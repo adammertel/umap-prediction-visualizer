@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   SDataCategories,
+  SDataLivFiltered,
   SDataRef,
   SDataRefExtent,
   SSizesScatter,
@@ -17,7 +18,9 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   const containerSizes = useRecoilValue(SSizesScatter);
   const dataExtent = useRecoilValue(SDataRefExtent);
   const dataCategories = useRecoilValue(SDataCategories);
+
   const refData = useRecoilValue(SDataRef);
+  const livData = useRecoilValue(SDataLivFiltered);
 
   const histSize = 80;
   const histM = 5;
@@ -173,56 +176,20 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
     svgChartEl.selectAll(".data-point").remove();
     console.log("drawing data points");
 
-    if (refData) {
-      for (var binX = 0; binX < noBins; binX++) {
-        const binExtentX = [
-          dataExtent[0] + oneBinX * (binX + 0),
-          dataExtent[0] + oneBinX * (binX + 1),
-        ];
-
-        for (var binY = 0; binY < noBins; binY++) {
-          const binExtentY = [
-            dataExtent[2] + oneBinY * (binY + 0),
-            dataExtent[2] + oneBinY * (binY + 1),
-          ];
-
-          // find the most occured category in the bin
-          const binData: any = {};
-          for (const ci in dataCategories) {
-            const cat: Category = dataCategories[ci];
-            const catData = catBinMatrix.get(cat);
-            binData[cat] = catData ? catData[binX][binY] : 0;
-          }
-
-          if (Object.keys(binData).length) {
-            const binCategory: any = Object.keys(binData).reduce((a, b) =>
-              binData[a] > binData[b] ? a : b
-            );
-
-            const binValue = binData[binCategory];
-
-            if (binValue > 10) {
-              svgChartEl
-                .append("rect")
-                .attr("class", "bin")
-                .attr("x", scaleChartX(binExtentX[0]))
-                .attr("y", scaleChartY(binExtentY[0]))
-                .attr("fill-opacity", scaleOpacity(binValue))
-
-                .attr("width", oneBinW)
-                .attr("height", oneBinH)
-                .attr("stroke-width", 1)
-                //.attr("stroke", categoryColors[binCategory as Category][0])
-                .attr("fill", categoryColors[binCategory as Category][0]);
-            }
-
-            //categoryColors;
-            //catBinMatrix;
-          }
-        }
-      }
+    if (livData) {
+      livData.forEach((livPoint) => {
+        svgChartEl
+          .append("circle")
+          .attr("class", "data-point")
+          .attr("cx", scaleChartX(livPoint.x))
+          .attr("cy", scaleChartY(livPoint.y))
+          .attr("r", 0.5)
+          .attr("stroke-width", 0)
+          .attr("fill", categoryColors[livPoint.cat][1]);
+      });
     }
-  }, [catBinMatrix]);
+    console.log("drawing data points ended");
+  }, [livData]);
 
   return (
     <div

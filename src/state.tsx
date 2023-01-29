@@ -27,6 +27,20 @@ export const SDataLiv = atom<IDataPointLiv[]>({
   default: [],
 });
 
+export const SDataTimeExtent = selector<[Date, Date]>({
+  key: "dataTimeExtent",
+  get: ({ get }) => {
+    const data = get(SDataLiv);
+    if (data.length) {
+      const sortedData = [...data];
+      sortedData.sort((a, b) => (a.date > b.date ? 1 : -1));
+      return [sortedData[0].date, sortedData[data.length - 1].date];
+    } else {
+      return [new Date(), new Date()];
+    }
+  },
+});
+
 export const SDataLivFiltered = selector<IDataPointLiv[]>({
   key: "dataLivFiltered",
   get: ({ get }) => {

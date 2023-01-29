@@ -17,11 +17,19 @@ export const DataLoader: React.FunctionComponent<IDataLoaderProps> = ({}) => {
     d3.csv(process.env.PUBLIC_URL + "/live.csv").then((data: any) => {
       setDataLiv(
         data.map((d: any) => {
+          const dParts = d.timestamp.split(" ");
+
+          const dYear = dParts[0].split("-")[2];
+          const dMonth = dParts[0].split("-")[1];
+          const dDay = dParts[0].split("-")[0];
+
+          const dHour = dParts[1].split(":")[0];
+          const dMinutes = dParts[1].split(":")[1];
           return {
             x: parseFloat(d["0"]),
             y: parseFloat(d["1"]),
             cat: d["prediction"],
-            date: d["timestamp"],
+            date: new Date(dYear, dMonth, dDay, dHour, dMinutes),
           };
         })
       );

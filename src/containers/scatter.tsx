@@ -76,7 +76,6 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   }, [scatterSize]);
 
   const catBinMatrix: Map<Category, number[][]> = useMemo(() => {
-    //const catBins: { [key in Category]: number[][] } = dataCategories.;
     const catBins: Map<Category, number[][]> = new Map();
 
     for (const ci in dataCategories) {
@@ -183,8 +182,9 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
           .attr("class", "data-point")
           .attr("cx", scaleChartX(livPoint.x))
           .attr("cy", scaleChartY(livPoint.y))
-          .attr("r", 0.5)
+          .attr("r", 0.3)
           .attr("stroke-width", 0)
+          .attr("stroke", "black")
           .attr("fill", categoryColors[livPoint.cat][1]);
       });
     }

@@ -1,4 +1,5 @@
 import { atom, selector } from "recoil";
+import { Category } from "./variables";
 
 /**
  * Data
@@ -7,12 +8,12 @@ import { atom, selector } from "recoil";
 interface IDataPointRef {
   x: number;
   y: number;
-  cat: string;
+  cat: Category;
 }
 interface IDataPointLiv {
   x: number;
   y: number;
-  cat: string;
+  cat: Category;
   date: Date;
 }
 
@@ -26,7 +27,7 @@ export const SDataLiv = atom<IDataPointLiv[]>({
   default: [],
 });
 
-export const SDataCategories = selector<string[]>({
+export const SDataCategories = selector<Category[]>({
   key: "dataCategories",
   get: ({ get }) => {
     const data = get(SDataRef);

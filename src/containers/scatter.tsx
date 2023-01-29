@@ -8,6 +8,9 @@ import {
 } from "../state";
 import * as d3 from "d3";
 
+import { scaleLinear, scaleSqrt } from "d3-scale";
+import { Category, categoryColors } from "../variables";
+
 interface IScatterProps {}
 
 export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
@@ -18,10 +21,19 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
 
   const histSize = 80;
   const histM = 5;
+  const chartM = 5;
 
   const refChart = useRef<SVGSVGElement | null>(null);
   const refHistX = useRef<SVGSVGElement | null>(null);
   const refHistY = useRef<SVGSVGElement | null>(null);
+
+  const svgChartEl = useMemo(() => {
+    const svg = d3.select(refChart.current);
+    if (svg) {
+      svg.selectAll("*").remove();
+    }
+    return svg;
+  }, [refChart]);
 
   const scatterSize = useMemo(() => {
     return [
@@ -30,7 +42,7 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
     ];
   }, [containerSizes]);
 
-  const noBins = 50;
+  const noBins = 100;
 
   const oneBinX = useMemo(() => {
     return (dataExtent[1] - dataExtent[0]) / noBins;
@@ -39,14 +51,37 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
     return (dataExtent[3] - dataExtent[2]) / noBins;
   }, [dataExtent]);
 
-  const catBinMatrix = useMemo(() => {
-    const catBins: { [key: string]: number[][] } = {};
+  const oneBinW: number = useMemo(() => {
+    return (scatterSize[0] - 2 * chartM) / noBins;
+  }, [scatterSize, noBins]);
+  const oneBinH: number = useMemo(() => {
+    return (scatterSize[1] - 2 * chartM) / noBins;
+  }, [scatterSize, noBins]);
+
+  // define scales for live data
+  const scaleChartX = useMemo(() => {
+    return scaleLinear()
+      .domain([dataExtent[0], dataExtent[1]])
+      .range([chartM, scatterSize[0] - 1 * chartM]);
+  }, [scatterSize]);
+
+  // define scales for live data
+  const scaleChartY = useMemo(() => {
+    return scaleLinear()
+      .domain([dataExtent[2], dataExtent[3]])
+      .range([chartM, scatterSize[1] - 1 * chartM]);
+  }, [scatterSize]);
+
+  const catBinMatrix: Map<Category, number[][]> = useMemo(() => {
+    //const catBins: { [key in Category]: number[][] } = dataCategories.;
+    const catBins: Map<Category, number[][]> = new Map();
 
     for (const ci in dataCategories) {
       const cat = dataCategories[ci];
 
       const catData = refData.filter((d) => d.cat === cat);
-      catBins[cat] = [];
+
+      const catBinValues: number[][] = [];
 
       for (var binX = 0; binX < noBins; binX++) {
         const binExtentX = [
@@ -57,7 +92,7 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
           (d) => d.x > binExtentX[0] && d.x < binExtentX[1]
         );
 
-        catBins[cat][binX] = [];
+        catBinValues[binX] = [];
         for (var binY = 0; binY < noBins; binY++) {
           const binExtentY = [
             dataExtent[2] + oneBinY * (binY + 0),
@@ -66,19 +101,128 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
           const catBinXY = catBinX.filter(
             (d) => d.y > binExtentY[0] && d.y < binExtentY[1]
           );
-          catBins[cat][binX][binY] = catBinXY.length;
+          catBinValues[binX][binY] = catBinXY.length;
         }
       }
+
+      // assign values to the map
+      catBins.set(cat, catBinValues);
     }
     return catBins;
-  }, [oneBinY, oneBinX]);
-
-  console.log(catBinMatrix);
+  }, [oneBinY, oneBinX, refData]);
 
   // draw scatterplot
   useEffect(() => {
-    const svgEl = d3.select(refChart.current);
-  }, [containerSizes]);
+    svgChartEl.selectAll(".bin").remove();
+    console.log("drawing bins");
+
+    const scaleOpacity = scaleSqrt().domain([0, 100]).range([0, 1]);
+    if (refData) {
+      for (var binX = 0; binX < noBins; binX++) {
+        const binExtentX = [
+          dataExtent[0] + oneBinX * (binX + 0),
+          dataExtent[0] + oneBinX * (binX + 1),
+        ];
+
+        for (var binY = 0; binY < noBins; binY++) {
+          const binExtentY = [
+            dataExtent[2] + oneBinY * (binY + 0),
+            dataExtent[2] + oneBinY * (binY + 1),
+          ];
+
+          // find the most occured category in the bin
+          const binData: any = {};
+          for (const ci in dataCategories) {
+            const cat: Category = dataCategories[ci];
+            const catData = catBinMatrix.get(cat);
+            binData[cat] = catData ? catData[binX][binY] : 0;
+          }
+
+          if (Object.keys(binData).length) {
+            const binCategory: any = Object.keys(binData).reduce((a, b) =>
+              binData[a] > binData[b] ? a : b
+            );
+
+            const binValue = binData[binCategory];
+
+            if (binValue > 10) {
+              svgChartEl
+                .append("rect")
+                .attr("class", "bin")
+                .attr("x", scaleChartX(binExtentX[0]))
+                .attr("y", scaleChartY(binExtentY[0]))
+                .attr("fill-opacity", scaleOpacity(binValue))
+
+                .attr("width", oneBinW)
+                .attr("height", oneBinH)
+                .attr("stroke-width", 1)
+                //.attr("stroke", categoryColors[binCategory as Category][0])
+                .attr("fill", categoryColors[binCategory as Category][0]);
+            }
+
+            //categoryColors;
+            //catBinMatrix;
+          }
+        }
+      }
+    }
+  }, [catBinMatrix]);
+
+  // draw live points
+  useEffect(() => {
+    svgChartEl.selectAll(".data-point").remove();
+    console.log("drawing data points");
+
+    if (refData) {
+      for (var binX = 0; binX < noBins; binX++) {
+        const binExtentX = [
+          dataExtent[0] + oneBinX * (binX + 0),
+          dataExtent[0] + oneBinX * (binX + 1),
+        ];
+
+        for (var binY = 0; binY < noBins; binY++) {
+          const binExtentY = [
+            dataExtent[2] + oneBinY * (binY + 0),
+            dataExtent[2] + oneBinY * (binY + 1),
+          ];
+
+          // find the most occured category in the bin
+          const binData: any = {};
+          for (const ci in dataCategories) {
+            const cat: Category = dataCategories[ci];
+            const catData = catBinMatrix.get(cat);
+            binData[cat] = catData ? catData[binX][binY] : 0;
+          }
+
+          if (Object.keys(binData).length) {
+            const binCategory: any = Object.keys(binData).reduce((a, b) =>
+              binData[a] > binData[b] ? a : b
+            );
+
+            const binValue = binData[binCategory];
+
+            if (binValue > 10) {
+              svgChartEl
+                .append("rect")
+                .attr("class", "bin")
+                .attr("x", scaleChartX(binExtentX[0]))
+                .attr("y", scaleChartY(binExtentY[0]))
+                .attr("fill-opacity", scaleOpacity(binValue))
+
+                .attr("width", oneBinW)
+                .attr("height", oneBinH)
+                .attr("stroke-width", 1)
+                //.attr("stroke", categoryColors[binCategory as Category][0])
+                .attr("fill", categoryColors[binCategory as Category][0]);
+            }
+
+            //categoryColors;
+            //catBinMatrix;
+          }
+        }
+      }
+    }
+  }, [catBinMatrix]);
 
   return (
     <div
@@ -116,3 +260,6 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
     </div>
   );
 };
+function scaleLog() {
+  throw new Error("Function not implemented.");
+}

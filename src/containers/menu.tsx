@@ -18,8 +18,6 @@ export const Menu: React.FunctionComponent<IMenuProps> = ({}) => {
         width: containerSizes.w,
         height: containerSizes.h,
       }}
-    >
-      menu
-    </div>
+    ></div>
   );
 };

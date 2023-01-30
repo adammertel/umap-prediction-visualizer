@@ -28,6 +28,15 @@ export const SDataLiv = atom<IDataPointLiv[]>({
   default: [],
 });
 
+export const SDataLoadedRef = atom<boolean>({
+  key: "dataLoadedRef",
+  default: false,
+});
+export const SDataLoadedLiv = atom<boolean>({
+  key: "dataLoadedLiv",
+  default: false,
+});
+
 export const SDataLivSelected = selector<IDataPointLiv[]>({
   key: "dataLivSelected",
   get: ({ get }) => {
@@ -153,7 +162,7 @@ const SIZE_SETTINGS = {
   APP_P: 10,
   HEADER_H: 50,
   TIMELINE_H: 150,
-  MENU_H: 75,
+  MENU_H: 0,
   SCATTER_W: 500,
   CONTAINER_M: 5,
 };

@@ -29,7 +29,12 @@ code {
 
 #container-dataloader {
   .loader {
-    font-size: 200px;
+    .loader-animation {
+      margin: 0 auto;
+    }
+    .loader-text {
+      text-align: center;
+    }
   }
 }
 

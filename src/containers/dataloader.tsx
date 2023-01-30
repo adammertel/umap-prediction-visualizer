@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { SDataLiv, SDataRef, STimeExtent, STimeSelection } from "../state";
+import {
+  SDataLiv,
+  SDataLoadedLiv,
+  SDataLoadedRef,
+  SDataRef,
+  SSizes,
+  STimeExtent,
+  STimeSelection,
+} from "../state";
 import * as d3 from "d3";
+import ReactLoading from "react-loading";
 
 interface IDataLoaderProps {}
 
 export const DataLoader: React.FunctionComponent<IDataLoaderProps> = ({}) => {
-  const [loadedRef, setLoadedRef] = useState<boolean>(false);
-  const [loadedLiv, setLoadedLiv] = useState<boolean>(false);
+  const [loadedRef, setLoadedRef] = useRecoilState(SDataLoadedRef);
+  const [loadedLiv, setLoadedLiv] = useRecoilState(SDataLoadedLiv);
 
   const setDataRef = useSetRecoilState(SDataRef);
   const setDataLiv = useSetRecoilState(SDataLiv);
+
+  const sizes = useRecoilValue(SSizes);
 
   const setTimeSelection = useSetRecoilState(STimeSelection);
 
@@ -68,7 +79,24 @@ export const DataLoader: React.FunctionComponent<IDataLoaderProps> = ({}) => {
       {loadedLiv && loadedRef ? (
         <></>
       ) : (
-        <div className="loader">{"loading data"}</div>
+        <div className="loader">
+          <ReactLoading
+            className="loader-animation"
+            type="bars"
+            color="black"
+            height={sizes.h / 2}
+            width={sizes.w / 2}
+          />
+          <div
+            className="loader-text"
+            style={{
+              marginTop: sizes.h / 6,
+              fontSize: sizes.w / 20,
+            }}
+          >
+            loading data...
+          </div>
+        </div>
       )}
     </div>
   );

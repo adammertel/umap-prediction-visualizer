@@ -15,13 +15,16 @@ import {
   useRecoilState,
   useRecoilValue,
 } from "recoil";
-import { SAppH, SAppW } from "./state";
+import { SAppH, SAppW, SDataLoadedLiv, SDataLoadedRef } from "./state";
 
 export const App: React.FunctionComponent<{}> = ({}) => {
   const appRef = useRef<HTMLDivElement | null>(null);
 
   const [appW, setAppW] = useRecoilState(SAppW);
   const [appH, setAppH] = useRecoilState(SAppH);
+
+  const loadedRef = useRecoilValue(SDataLoadedRef);
+  const loadedLiv = useRecoilValue(SDataLoadedLiv);
 
   // handling wrapper
   useEffect(() => {
@@ -37,12 +40,17 @@ export const App: React.FunctionComponent<{}> = ({}) => {
 
   return (
     <div id="app" ref={appRef}>
-      <DataLoader />
-      <Header />
-      <Timeline />
-      <Menu />
-      <Scatter />
-      <Categories />
+      {loadedLiv && loadedRef ? (
+        <>
+          <Header />
+          <Timeline />
+          <Menu />
+          <Scatter />
+          <Categories />
+        </>
+      ) : (
+        <DataLoader />
+      )}
     </div>
   );
 };

@@ -17,8 +17,6 @@ export const Categories: React.FunctionComponent<ICategoriesProps> = ({}) => {
         width: containerSizes.w,
         height: containerSizes.h,
       }}
-    >
-      categories
-    </div>
+    ></div>
   );
 };

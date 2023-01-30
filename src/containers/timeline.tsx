@@ -144,13 +144,13 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
         .attr("y1", chartMT - 5)
         .attr("y2", timeLineH)
         .style("stroke", "black")
-        .style("stroke-width", 1.5);
+        .style("stroke-width", 2.5);
 
       el.append("circle")
         .attr("class", `timeline-selection-line`)
         .attr("cx", lineX)
         .attr("cy", chartMT - 5)
-        .attr("r", 3)
+        .attr("r", 5)
         .style("fill", "black")
         .style("stroke-width", 0);
     }
@@ -207,6 +207,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
           style={{
             left: chartMX - 10,
             right: chartMX - 10,
+            width: containerSizes.w - chartMX - 5,
             top: timeLineH - 5,
           }}
           type="range"

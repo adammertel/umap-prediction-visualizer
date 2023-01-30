@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
+  IDataPointLiv,
   SDataCategories,
   SDataLivExtent,
   SDataLivSelected,
@@ -194,17 +195,19 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
       console.log("drawing data points");
 
       if (filteredData && oneBinW > 0 && oneBinH > 0) {
-        filteredData.forEach((livPoint) => {
-          pointsEl
-            .append("circle")
-            .attr("class", "data-point")
-            .attr("cx", scaleChartX(livPoint.x))
-            .attr("cy", scaleChartY(livPoint.y))
-            .attr("r", 1)
-            .attr("stroke-width", 1.5)
-            .attr("stroke", categoryColors[livPoint.cat][1])
-            .attr("fill", categoryColors[livPoint.cat][0]);
-        });
+        pointsEl
+          .append("g")
+          .attr("stroke-width", 1.5)
+          .selectAll("circle.data-point")
+          .data(filteredData)
+          .enter()
+          .append("circle")
+          .attr("class", "data-point")
+          .attr("cx", (d) => scaleChartX(d.x))
+          .attr("cy", (d) => scaleChartY(d.y))
+          .attr("r", 1)
+          .attr("stroke", (d) => categoryColors[d.cat][1])
+          .attr("fill", (d) => categoryColors[d.cat][0]);
       }
       console.log("drawing data points ended");
     }

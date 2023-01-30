@@ -1,5 +1,5 @@
-$COLOR_PRIMARY: "black";
-$COLOR_WHITE: "white";
+$COLOR_PRIMARY: black;
+$COLOR_WHITE: white;
 
 html,
 body,
@@ -16,6 +16,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: darkslategrey;
 }
 
 code {
@@ -88,6 +89,7 @@ code {
   }
   input[type="range"] {
     color: $COLOR_PRIMARY;
+    background-color: $COLOR_PRIMARY;
     border-radius: 10px;
     height: 15px;
   }
@@ -111,6 +113,30 @@ code {
 
     #selector-title {
       font-weight: bold;
+    }
+  }
+}
+
+#container-categories {
+  padding-left: 10px;
+  flex-wrap: wrap;
+  display: flex;
+  position: absolute;
+  overflow-y: auto;
+
+  .category-panel {
+    background-color: lightgrey;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    .category-label {
+      margin-left: 10px;
+      vertical-align: middle;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .category-chart {
+      background-color: white;
     }
   }
 }

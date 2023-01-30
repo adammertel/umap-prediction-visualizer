@@ -6,12 +6,12 @@ import { Category } from "./variables";
  * Data
  */
 
-interface IDataPointRef {
+export interface IDataPointRef {
   x: number;
   y: number;
   cat: Category;
 }
-interface IDataPointLiv {
+export interface IDataPointLiv {
   x: number;
   y: number;
   cat: Category;
@@ -165,6 +165,8 @@ const SIZE_SETTINGS = {
   MENU_H: 0,
   SCATTER_W: 500,
   CONTAINER_M: 5,
+  CATEGORY_W: 500,
+  CATEGORY_H: 300,
 };
 
 export const SAppW = atom<number>({

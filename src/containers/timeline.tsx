@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   SDataCategories,
@@ -7,7 +7,7 @@ import {
   SSizesTimeline,
 } from "../state";
 import * as d3 from "d3";
-import { scaleLinear } from "d3";
+import { scaleLinear, select } from "d3";
 import { Categories } from "./categories";
 import { Category, categoryColors } from "../variables";
 
@@ -24,18 +24,23 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
   const refTimeline = useRef<SVGSVGElement | null>(null);
   const svgEl = useMemo(() => {
     const svg = d3.select(refTimeline.current);
-    if (svg) {
-      svg.selectAll("*").remove();
-    }
     return svg;
   }, [refTimeline]);
+
+  const canvasReady = useMemo<boolean>(() => {
+    return containerSizes.w > 0 && containerSizes.h > 0;
+  }, [containerSizes.w, containerSizes.h]);
+
+  const dataReady = useMemo<boolean>(() => {
+    return dataTimeExtent[0] !== dataTimeExtent[1];
+  }, [dataTimeExtent]);
 
   // define temporal scale
   const scaleX = useMemo(() => {
     return scaleLinear()
       .domain([dataTimeExtent[0], dataTimeExtent[1]])
       .range([chartM, containerSizes.w - 1 * chartM]);
-  }, [containerSizes]);
+  }, [containerSizes.w, JSON.stringify(dataTimeExtent)]);
 
   // define y scale
   const scaleY = useMemo(() => {
@@ -103,20 +108,24 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
       }
     });
     return stackedData;
-  }, [dataLiv, scaleX]);
+  }, [dataLiv, scaleX, timeIntervals]);
 
+  //const [timelineEl, setTimelineEl] = useState<any>(false);
   useEffect(() => {
-    svgEl.selectAll(".timeline-area").remove();
+    const svgEl = select(refTimeline.current);
+    if (svgEl && dataReady && canvasReady) {
+      svgEl.selectAll(`.timeline-wrapper`).remove();
+      //timelineEl.remove();
+      const el = svgEl.append("g").attr("class", "timeline-wrapper");
 
-    Object.entries(stackedTimelineData).forEach(([cat, stackedCatData]) => {
-      svgEl
-        .append("path")
-        .attr("class", `timeline-area timeline-area-${cat}`)
-        .style("fill", function (d) {
-          return categoryColors[cat as Category][0];
-        })
-        .attr("d", area(stackedCatData as any));
-    });
+      Object.entries(stackedTimelineData).forEach(([cat, stackedCatData]) => {
+        el.append("path")
+          .attr("class", `timeline-area timeline-area-${cat}`)
+          .style("fill", categoryColors[cat as Category][0])
+          .attr("d", area(stackedCatData as any));
+      });
+    }
+    //setTimelineEl(el);
   }, [stackedTimelineData]);
 
   return (
@@ -131,13 +140,15 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
         height: containerSizes.h,
       }}
     >
-      <svg
-        ref={refTimeline}
-        style={{ bottom: 0, right: 0 }}
-        id="timeline"
-        width={containerSizes.w}
-        height={containerSizes.h}
-      />
+      {canvasReady && (
+        <svg
+          ref={refTimeline}
+          style={{ bottom: 0, right: 0 }}
+          id="timeline"
+          width={containerSizes.w}
+          height={containerSizes.h}
+        />
+      )}
     </div>
   );
 };

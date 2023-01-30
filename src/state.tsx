@@ -61,6 +61,9 @@ export const SDataRefExtent = selector<[number, number, number, number]>({
   key: "dataRefExtent",
   get: ({ get }) => {
     const data = get(SDataRef);
+    if (data.length === 0) {
+      return [0, 0, 0, 0];
+    }
     return [
       Math.min(...data.map((d) => d.x)),
       Math.max(...data.map((d) => d.x)),
@@ -74,6 +77,9 @@ export const SDataLivExtent = selector<[number, number, number, number]>({
   key: "dataLivExtent",
   get: ({ get }) => {
     const data = get(SDataLiv);
+    if (data.length === 0) {
+      return [0, 0, 0, 0];
+    }
     return [
       Math.min(...data.map((d) => d.x)),
       Math.max(...data.map((d) => d.x)),

@@ -1,3 +1,4 @@
+import { selection } from "d3";
 import { atom, selector } from "recoil";
 import { Category } from "./variables";
 
@@ -27,25 +28,13 @@ export const SDataLiv = atom<IDataPointLiv[]>({
   default: [],
 });
 
-export const SDataTimeExtent = selector<[Date, Date]>({
-  key: "dataTimeExtent",
+export const SDataLivSelected = selector<IDataPointLiv[]>({
+  key: "dataLivSelected",
   get: ({ get }) => {
     const data = get(SDataLiv);
-    if (data.length) {
-      const sortedData = [...data];
-      sortedData.sort((a, b) => (a.date > b.date ? 1 : -1));
-      return [sortedData[0].date, sortedData[data.length - 1].date];
-    } else {
-      return [new Date(), new Date()];
-    }
-  },
-});
+    const selectedDate = get(STimeSelection);
 
-export const SDataLivFiltered = selector<IDataPointLiv[]>({
-  key: "dataLivFiltered",
-  get: ({ get }) => {
-    const data = get(SDataLiv);
-    return data;
+    return data.filter((d) => d.date.valueOf() === selectedDate.valueOf());
   },
 });
 
@@ -90,13 +79,80 @@ export const SDataLivExtent = selector<[number, number, number, number]>({
 });
 
 /**
+ * Handling time filtering
+ */
+
+export const STimeExtent = atom<[Date, Date]>({
+  key: "timeExtent",
+  default: [new Date(), new Date()],
+});
+
+export const STimeSelection = atom<Date>({
+  key: "timeSelection",
+  default: new Date(),
+});
+
+export const SDataTimeExtent = selector<[Date, Date]>({
+  key: "dataTimeExtent",
+  get: ({ get }) => {
+    const data = get(SDataLiv);
+    if (data.length) {
+      const sortedData = [...data];
+      sortedData.sort((a, b) => (a.date > b.date ? 1 : -1));
+
+      return [sortedData[0].date, sortedData[data.length - 1].date];
+    } else {
+      return [new Date(), new Date()];
+    }
+  },
+});
+
+export const SMaxInTimeIntervals = selector<number>({
+  key: "maxIndataTimeIntervals",
+  get: ({ get }) => {
+    const intervals = get(STimeIntervals);
+    const data = get(SDataLiv);
+    let maxInInterval = 0;
+
+    intervals.forEach((timeInterval: Date, ti) => {
+      const dataTimeInterval = data.filter(
+        (d) => d.date.valueOf() === timeInterval.valueOf()
+      );
+      if (dataTimeInterval.length > maxInInterval) {
+        maxInInterval = dataTimeInterval.length;
+      }
+    });
+    return maxInInterval;
+  },
+});
+
+export const STimeIntervals = selector<Date[]>({
+  key: "dataTimeIntervals",
+  get: ({ get }) => {
+    const startDate = get(SDataTimeExtent)[0];
+    const endDate = get(SDataTimeExtent)[1];
+    const interval = 60 * 60 * 1000;
+    const intervals = [];
+
+    for (
+      let current = startDate;
+      current <= endDate;
+      current = new Date(current.getTime() + interval)
+    ) {
+      intervals.push(current);
+    }
+    return intervals;
+  },
+});
+
+/**
  * Handling sizes
  */
 
 const SIZE_SETTINGS = {
   APP_P: 10,
   HEADER_H: 50,
-  TIMELINE_H: 100,
+  TIMELINE_H: 150,
   MENU_H: 75,
   SCATTER_W: 500,
   CONTAINER_M: 5,

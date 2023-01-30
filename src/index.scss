@@ -1,3 +1,6 @@
+$COLOR_PRIMARY: "black";
+$COLOR_WHITE: "white";
+
 html,
 body,
 #root,
@@ -46,5 +49,63 @@ code {
   svg {
     position: absolute;
     background-color: white;
+  }
+}
+
+#container-timeline {
+  #timeslider {
+    margin-top: 0px;
+
+    #timeslider-minmax-labels {
+      display: block;
+      width: 100%;
+      .timeslider-label {
+        position: absolute;
+        font-size: 12px;
+        margin: 10px;
+        top: 0;
+      }
+      .timeslider-label-min {
+        left: 0;
+      }
+      .timeslider-label-max {
+        right: 0;
+      }
+    }
+    #timeslider-input {
+      position: absolute;
+    }
+    #timeslider-selected-label {
+      position: absolute;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+  input[type="range"] {
+    color: $COLOR_PRIMARY;
+    border-radius: 10px;
+    height: 15px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    height: 25px;
+    width: 15px;
+    border-radius: 5px;
+    background: $COLOR_PRIMARY;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: $COLOR_WHITE;
+    height: 15px;
+    border-radius: 10px;
+    margin-top: 0;
+  }
+
+  #section-selector {
+    margin-left: 30px;
+
+    #selector-title {
+      font-weight: bold;
+    }
   }
 }

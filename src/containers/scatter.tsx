@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   SDataCategories,
-  SDataLivFiltered,
+  SDataLivExtent,
+  SDataLivSelected,
   SDataRef,
   SDataRefExtent,
   SSizesScatter,
@@ -17,11 +18,11 @@ interface IScatterProps {}
 
 export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   const containerSizes = useRecoilValue(SSizesScatter);
-  const dataExtent = useRecoilValue(SDataRefExtent);
+  const dataExtent = useRecoilValue(SDataLivExtent);
   const dataCategories = useRecoilValue(SDataCategories);
 
   const refData = useRecoilValue(SDataRef);
-  const livData = useRecoilValue(SDataLivFiltered);
+  const filteredData = useRecoilValue(SDataLivSelected);
 
   const histSize = 80;
   const histM = 5;
@@ -30,14 +31,6 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   const refChart = useRef<SVGSVGElement | null>(null);
   const refHistX = useRef<SVGSVGElement | null>(null);
   const refHistY = useRef<SVGSVGElement | null>(null);
-
-  const svgChartEl = useMemo(() => {
-    const svg = d3.select(refChart.current);
-    if (svg) {
-      svg.selectAll("*").remove();
-    }
-    return svg;
-  }, [refChart]);
 
   const scatterSize = useMemo(() => {
     return [
@@ -195,27 +188,27 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
 
     if (svgEl && canvasReady && dataReady) {
       //console.log(scatterSize);
-      const pointsEl = svgEl.append("g").attr("class", "points-wrapper");
+      svgEl.selectAll(".points-wrapper").remove();
 
-      svgChartEl.selectAll(".points-wrapper").remove();
+      const pointsEl = svgEl.append("g").attr("class", "points-wrapper");
       console.log("drawing data points");
 
-      if (livData && oneBinW > 0 && oneBinH > 0) {
-        livData.forEach((livPoint) => {
+      if (filteredData && oneBinW > 0 && oneBinH > 0) {
+        filteredData.forEach((livPoint) => {
           pointsEl
             .append("circle")
             .attr("class", "data-point")
             .attr("cx", scaleChartX(livPoint.x))
             .attr("cy", scaleChartY(livPoint.y))
-            .attr("r", 0.3)
-            .attr("stroke-width", 0)
-            .attr("stroke", "black")
-            .attr("fill", categoryColors[livPoint.cat][1]);
+            .attr("r", 1)
+            .attr("stroke-width", 1.5)
+            .attr("stroke", categoryColors[livPoint.cat][1])
+            .attr("fill", categoryColors[livPoint.cat][0]);
         });
       }
       console.log("drawing data points ended");
     }
-  }, [livData, oneBinW, oneBinH]);
+  }, [filteredData, oneBinW, oneBinH]);
 
   return (
     <div

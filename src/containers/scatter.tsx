@@ -25,6 +25,8 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   const refData = useRecoilValue(SDataRef);
   const filteredData = useRecoilValue(SDataLivSelected);
 
+  const refPointCanvas = useRef<HTMLCanvasElement | null>(null);
+
   const histSize = 80;
   const histM = 5;
   const chartM = 5;
@@ -185,29 +187,36 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
 
   // draw live points
   useEffect(() => {
-    const svgEl = select(refChart.current);
+    const canvasEl = select(refPointCanvas.current);
+    //const canvasEl = document.getElementById("canvas-point");
 
-    if (svgEl && canvasReady && dataReady) {
-      //console.log(scatterSize);
-      svgEl.selectAll(".points-wrapper").remove();
+    if (canvasEl && canvasEl !== null && canvasReady && dataReady) {
+      const ctx = canvasEl?.node()?.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, scatterSize[0], scatterSize[1]);
+        ctx.globalAlpha = 0.5;
+        ctx.globalCompositeOperation = "multiply";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1.2;
 
-      const pointsEl = svgEl.append("g").attr("class", "points-wrapper");
-      console.log("drawing data points");
+        if (filteredData && oneBinW > 0 && oneBinH > 0) {
+          filteredData.forEach((pointData) => {
+            ctx.beginPath();
+            ctx.arc(
+              scaleChartX(pointData.x),
+              scaleChartY(pointData.y),
+              2,
+              0,
+              2 * Math.PI,
+              false
+            );
 
-      if (filteredData && oneBinW > 0 && oneBinH > 0) {
-        pointsEl
-          .append("g")
-          .attr("stroke-width", 1.5)
-          .selectAll("circle.data-point")
-          .data(filteredData)
-          .enter()
-          .append("circle")
-          .attr("class", "data-point")
-          .attr("cx", (d) => scaleChartX(d.x))
-          .attr("cy", (d) => scaleChartY(d.y))
-          .attr("r", 1)
-          .attr("stroke", (d) => categoryColors[d.cat][1])
-          .attr("fill", (d) => categoryColors[d.cat][0]);
+            ctx.fillStyle = categoryColors[pointData.cat][1];
+
+            ctx.fill();
+            ctx.stroke();
+          });
+        }
       }
       console.log("drawing data points ended");
     }
@@ -245,6 +254,17 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
             ref={refChart}
             style={{ left: histSize + histM, bottom: histSize + histM }}
             id="chart"
+            height={scatterSize[1]}
+            width={scatterSize[0]}
+          />
+          <canvas
+            ref={refPointCanvas}
+            id="canvas-points"
+            style={{
+              left: histSize + histM,
+              bottom: histSize + histM,
+              background: "none",
+            }}
             height={scatterSize[1]}
             width={scatterSize[0]}
           />

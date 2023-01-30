@@ -51,6 +51,8 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
   const sChart = h - hLabel - 2 * m;
 
   const refChart = useRef<SVGSVGElement | null>(null);
+  const refChartCanvasAll = useRef<HTMLCanvasElement | null>(null);
+  const refChartCanvasSel = useRef<HTMLCanvasElement | null>(null);
 
   const refData = useRecoilValue(SDataRef);
   const livSelData = useRecoilValue(SDataLivSelected);
@@ -89,7 +91,7 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
     .x((d) => chartX(d[0]))
     .y((d) => chartY(d[1]))
     .size([sChart, sChart])
-    .bandwidth(6)
+    .bandwidth(10)
     .thresholds(30);
 
   // draw chart
@@ -110,7 +112,7 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
         .join("path")
         .attr("class", "contour-lines")
         .attr("fill", catColor[0])
-        .attr("fill-opacity", 1 / cont.length)
+        .attr("fill-opacity", 2 / cont.length)
         .attr("stroke", catColor[1])
         .attr("stroke-linejoin", "round")
         .attr("stroke-width", (d, i) => (i % 5 ? 0.25 : 1))
@@ -149,29 +151,68 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
 
   // draw points
   useEffect(() => {
-    const svgEl = select(refChart.current);
+    const canvasEl = select(refChartCanvasSel.current);
 
-    if (svgEl && dataReady) {
-      svgEl.selectAll(`.category-chart-points`).remove();
-      const catChartEl = svgEl
-        .append("g")
-        .attr("class", "category-chart-points");
+    if (canvasEl && canvasEl !== null && dataReady) {
+      const ctx = canvasEl?.node()?.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, sChart, sChart);
+        ctx.globalAlpha = 0.5;
+        ctx.globalCompositeOperation = "multiply";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 0;
+        //ctx.fillStyle = catColor[1];
+        ctx.fillStyle = "red";
 
-      catChartEl
-        .append("g")
-        // .attr("fill", catColor[0])
-        .attr("fill", "black")
-        .attr("fill-opacity", 1)
-        .attr("stroke-weight", 0)
-        // .attr("stroke", catColor[1])
-        .selectAll("path")
-        .data(catDataLivSel)
-        .join("circle")
-        .attr("r", 0.75)
-        .attr("cx", (d) => chartX(d.x))
-        .attr("cy", (d) => chartY(d.y));
+        catDataLivSel.forEach((pointData) => {
+          ctx.beginPath();
+          ctx.arc(
+            chartX(pointData.x),
+            chartY(pointData.y),
+            1,
+            0,
+            2 * Math.PI,
+            false
+          );
+
+          ctx.fill();
+          //ctx.stroke();
+        });
+      }
     }
   }, [catDataLivSel]);
+
+  // draw points
+  useEffect(() => {
+    const canvasEl = select(refChartCanvasAll.current);
+
+    if (canvasEl && canvasEl !== null && dataReady) {
+      const ctx = canvasEl?.node()?.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, sChart, sChart);
+        ctx.globalAlpha = 0.05;
+        ctx.globalCompositeOperation = "multiply";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 0;
+        ctx.fillStyle = "grey";
+
+        catDataLivAll.forEach((pointData) => {
+          ctx.beginPath();
+          ctx.arc(
+            chartX(pointData.x),
+            chartY(pointData.y),
+            1,
+            0,
+            2 * Math.PI,
+            false
+          );
+
+          ctx.fill();
+          //ctx.stroke();
+        });
+      }
+    }
+  }, [catDataLivAll]);
 
   return (
     <div
@@ -199,6 +240,30 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
         height={sChart}
         style={{
           margin: m,
+          top: hLabel,
+          left: 0,
+        }}
+      />
+      <canvas
+        ref={refChartCanvasAll}
+        className="canvas-category-chart"
+        width={sChart}
+        height={sChart}
+        style={{
+          margin: m,
+          top: hLabel,
+          left: 0,
+        }}
+      />
+      <canvas
+        ref={refChartCanvasSel}
+        className="canvas-category-chart"
+        width={sChart}
+        height={sChart}
+        style={{
+          margin: m,
+          top: hLabel,
+          left: 0,
         }}
       />
     </div>

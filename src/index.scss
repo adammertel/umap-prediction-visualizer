@@ -52,10 +52,25 @@ code {
 }
 
 #container-scatter {
-  svg {
+  svg,
+  canvas {
     position: absolute;
+  }
+
+  #chart {
     background-color: white;
   }
+}
+
+#container-categories {
+  svg,
+  canvas {
+    position: absolute;
+  }
+}
+
+canvas {
+  background-color: transparent;
 }
 
 #container-timeline {
@@ -128,6 +143,7 @@ code {
     background-color: lightgrey;
     border-radius: 5px;
     margin-bottom: 10px;
+    position: relative;
     .category-label {
       margin-left: 10px;
       vertical-align: middle;

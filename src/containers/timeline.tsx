@@ -16,9 +16,9 @@ import { Categories } from "./categories";
 import { Category, categoryColors } from "../variables";
 
 import { getTrackBackground, Range } from "react-range";
-import noUiSlider from "nouislider";
-import "nouislider/dist/nouislider.css";
 import { ITrackBackground } from "react-range/lib/types";
+
+import { useDebounce, useDebouncedCallback } from "use-debounce";
 
 interface ITimelineProps {}
 
@@ -38,6 +38,17 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
   const dataLiv = useRecoilValue(SDataLiv);
   const chartMX = 20;
   const chartMT = 35;
+
+  const [instantTimeValues, setInstantTimeValues] = useState<[number, number]>([
+    0,
+    timeIntervals.length - 1,
+  ]);
+
+  const debounceTimeValues = useDebouncedCallback((values) => {
+    setTimeSelection(
+      values.map((val: number) => timeIntervals[val]) as [Date, Date]
+    );
+  }, 1000);
 
   const timeLineH = useMemo<number>(
     () => containerSizes.h - sliderH,
@@ -141,8 +152,8 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
       //timelineEl.remove();
       const el = svgEl.append("g").attr("class", "timeline-selection");
 
-      const lineX0 = scaleX(timeSelection[0]);
-      const lineX1 = scaleX(timeSelection[1]);
+      const lineX0 = scaleX(timeIntervals[instantTimeValues[0]]);
+      const lineX1 = scaleX(timeIntervals[instantTimeValues[1]]);
 
       el.append("line")
         .attr("class", `timeline-selection-line`)
@@ -181,36 +192,18 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
     //setTimelineEl(el);
   }, [
     stackedTimelineData,
-    timeSelection.valueOf(),
+    instantTimeValues,
     containerSizes,
     timeLineH,
     timeIntervals.length,
   ]);
-
-  // time slider
-
-  const sliderSelectionPosition = useMemo(() => {
-    const positions = [0, 10];
-
-    const sel0Val = timeSelection[0].valueOf();
-    const sel1Val = timeSelection[1].valueOf();
-    timeIntervals.forEach((ti, i: number) => {
-      if (ti.valueOf() === sel0Val) {
-        positions[0] = i;
-      }
-      if (ti.valueOf() === sel1Val) {
-        positions[1] = i;
-      }
-    });
-    return positions;
-  }, [timeSelection, timeIntervals]);
 
   const selectedValuesLabelXY = useMemo<
     [[number, number], [number, number]]
   >(() => {
     const minX = 20;
     const maxX = containerSizes.w - 120;
-    return sliderSelectionPosition.map((pi, i) => {
+    return instantTimeValues.map((pi, i) => {
       const x =
         (containerSizes.w / timeIntervals.length) * pi - (i == 0 ? 100 : 0);
       if (x < minX) {
@@ -221,7 +214,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
       }
       return [x, 10];
     }) as [[number, number], [number, number]];
-  }, [containerSizes.w, timeIntervals.length, sliderSelectionPosition]);
+  }, [containerSizes.w, timeIntervals.length, instantTimeValues]);
 
   return (
     <div
@@ -245,17 +238,15 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
         />
       )}
       <Range
-        values={sliderSelectionPosition}
+        values={instantTimeValues}
         draggableTrack
         step={1}
         min={0}
         max={timeIntervals.length - 1}
         onChange={(values) => {
           //setTimeSelection(timeIntervals[parseInt(e.target.value)])
-          console.log(values);
-          setTimeSelection(
-            values.map((val) => timeIntervals[val]) as [Date, Date]
-          );
+          setInstantTimeValues(values as [number, number]);
+          debounceTimeValues(values);
         }}
         renderTrack={({ props, children }) => (
           <div
@@ -277,7 +268,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
                 width: "100%",
                 borderRadius: "4px",
                 background: getTrackBackground({
-                  values: sliderSelectionPosition,
+                  values: instantTimeValues,
                   colors: ["#ccc", "#548BF4", "#ccc"],
                   min: 0,
                   max: timeIntervals.length - 1,

@@ -194,10 +194,10 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
       const ctx = canvasEl?.node()?.getContext("2d");
       if (ctx) {
         ctx.clearRect(0, 0, scatterSize[0], scatterSize[1]);
-        ctx.globalAlpha = 0.5;
+        ctx.globalAlpha = 0.25;
         ctx.globalCompositeOperation = "multiply";
         ctx.strokeStyle = "black";
-        ctx.lineWidth = 1.2;
+        ctx.lineWidth = 0.2;
 
         if (filteredData && oneBinW > 0 && oneBinH > 0) {
           filteredData.forEach((pointData) => {
@@ -205,7 +205,7 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
             ctx.arc(
               scaleChartX(pointData.x),
               scaleChartY(pointData.y),
-              2,
+              1,
               0,
               2 * Math.PI,
               false

@@ -76,36 +76,39 @@ canvas {
 }
 
 #container-timeline {
-  #timeslider {
-    margin-top: 0px;
-
-    #timeslider-minmax-labels {
-      display: block;
-      width: 100%;
-      .timeslider-label {
-        position: absolute;
-        color: white;
-        font-size: 12px;
-        margin: 10px;
-        top: 0;
-      }
-      .timeslider-label-min {
-        left: 0;
-      }
-      .timeslider-label-max {
-        right: 0;
-      }
-    }
-    #timeslider-input {
+  #timeslider-minmax-labels {
+    display: block;
+    width: 100%;
+    .timeslider-label {
       position: absolute;
-    }
-    #timeslider-selected-label {
-      position: absolute;
+      color: white;
       font-size: 12px;
-      font-weight: 600;
-      color: black;
+      margin: 10px;
+      top: 0;
+    }
+    .timeslider-label-min {
+      left: 0;
+    }
+    .timeslider-label-max {
+      right: 0;
     }
   }
+  #timeslider-input {
+    position: absolute;
+  }
+  #timeslider-selected-labels {
+    position: absolute;
+    font-size: 12px;
+    font-weight: 600;
+    color: black;
+
+    .timeslider-selected-label {
+      position: absolute;
+      width: auto;
+      white-space: nowrap;
+    }
+  }
+
   input[type="range"] {
     -webkit-appearance: none;
     color: $COLOR_PRIMARY;

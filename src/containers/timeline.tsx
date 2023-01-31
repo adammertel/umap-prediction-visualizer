@@ -37,7 +37,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
 
   const dataLiv = useRecoilValue(SDataLiv);
   const chartMX = 20;
-  const chartMT = 25;
+  const chartMT = 35;
 
   const timeLineH = useMemo<number>(
     () => containerSizes.h - sliderH,
@@ -141,12 +141,13 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
       //timelineEl.remove();
       const el = svgEl.append("g").attr("class", "timeline-selection");
 
-      const lineX = scaleX(timeSelection[0]);
+      const lineX0 = scaleX(timeSelection[0]);
+      const lineX1 = scaleX(timeSelection[1]);
 
       el.append("line")
         .attr("class", `timeline-selection-line`)
-        .attr("x1", lineX)
-        .attr("x2", lineX)
+        .attr("x1", lineX0)
+        .attr("x2", lineX0)
         .attr("y1", chartMT - 5)
         .attr("y2", timeLineH)
         .style("stroke", "black")
@@ -154,7 +155,24 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
 
       el.append("circle")
         .attr("class", `timeline-selection-line`)
-        .attr("cx", lineX)
+        .attr("cx", lineX0)
+        .attr("cy", chartMT - 5)
+        .attr("r", 5)
+        .style("fill", "black")
+        .style("stroke-width", 0);
+
+      el.append("line")
+        .attr("class", `timeline-selection-line`)
+        .attr("x1", lineX1)
+        .attr("x2", lineX1)
+        .attr("y1", chartMT - 5)
+        .attr("y2", timeLineH)
+        .style("stroke", "black")
+        .style("stroke-width", 2.5);
+
+      el.append("circle")
+        .attr("class", `timeline-selection-line`)
+        .attr("cx", lineX1)
         .attr("cy", chartMT - 5)
         .attr("r", 5)
         .style("fill", "black")
@@ -171,23 +189,6 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
 
   // time slider
 
-  const selectedValueLabelX = useMemo<number>(() => {
-    const minX = 20;
-    const maxX = containerSizes.w - 120;
-    const x =
-      (containerSizes.w / timeIntervals.length) *
-        timeIntervals.indexOf(timeSelection[0]) -
-      100;
-
-    if (x < minX) {
-      return minX;
-    }
-    if (x > maxX) {
-      return maxX;
-    }
-    return x;
-  }, [containerSizes.w, timeIntervals.length, timeSelection.valueOf()]);
-
   const sliderSelectionPosition = useMemo(() => {
     const positions = [0, 10];
 
@@ -203,6 +204,24 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
     });
     return positions;
   }, [timeSelection, timeIntervals]);
+
+  const selectedValuesLabelXY = useMemo<
+    [[number, number], [number, number]]
+  >(() => {
+    const minX = 20;
+    const maxX = containerSizes.w - 120;
+    return sliderSelectionPosition.map((pi, i) => {
+      const x =
+        (containerSizes.w / timeIntervals.length) * pi - (i == 0 ? 100 : 0);
+      if (x < minX) {
+        return [minX, i == 0 ? 0 : 10];
+      }
+      if (x > maxX) {
+        return [maxX, i == 1 ? 0 : 10];
+      }
+      return [x, 10];
+    }) as [[number, number], [number, number]];
+  }, [containerSizes.w, timeIntervals.length, sliderSelectionPosition]);
 
   return (
     <div
@@ -311,17 +330,23 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
           {dataTimeExtent[1].toLocaleString("en-GB", { timeZone: "CET" })}
         </div>
       </div>
-      <div
-        id="timeslider-selected-label"
-        style={{
-          top: 0,
-          left: selectedValueLabelX,
-        }}
-      >
-        <div className="timeslider-label-min timeline-label">
+      <div id="timeslider-selected-labels" style={{ top: 0 }}>
+        <div
+          className="timeslider-selected-label-min timeslider-selected-label"
+          style={{
+            left: selectedValuesLabelXY[0][0],
+            top: selectedValuesLabelXY[0][1],
+          }}
+        >
           {timeSelection[0].toLocaleString("en-GB", { timeZone: "CET" })}
         </div>
-        <div className="timeslider-label-max timeline-label">
+        <div
+          className="timeslider-selected-label-max timeslider-selected-label"
+          style={{
+            left: selectedValuesLabelXY[1][0],
+            top: selectedValuesLabelXY[1][1],
+          }}
+        >
           {timeSelection[1].toLocaleString("en-GB", { timeZone: "CET" })}
         </div>
       </div>

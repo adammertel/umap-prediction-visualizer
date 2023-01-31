@@ -7,6 +7,8 @@ import {
   SDataLivExtent,
   SDataLivFiltered,
   SDataRef,
+  SRectangleActive,
+  SRectangleLivData,
   SSizes,
   SSizesLegend,
 } from "../state";
@@ -26,8 +28,11 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
 
   const refData = useRecoilValue(SDataRef);
   const livSelData = useRecoilValue(SDataLivFiltered);
+  const livRectData = useRecoilValue(SRectangleLivData);
   const livAllData = useRecoilValue(SDataLiv);
   const dataExtent = useRecoilValue(SDataLivExtent);
+
+  const rectSelActive = useRecoilValue(SRectangleActive);
 
   const [dataCategoriesSel, setDataCategoriesSel] =
     useRecoilState(SCategorySelection);
@@ -63,7 +68,8 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
         const sel = dataCategoriesSel.includes(cat);
         if (sel) {
           const len = livSelData.filter((d) => d.cat === cat).length;
-          console.log(cat, sel, len, scaleY(len));
+          const lenR = livRectData.filter((d) => d.cat === cat).length;
+
           histEl
             .append("rect")
             .attr("width", 10)
@@ -73,13 +79,26 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
               (containerSizes.w / (dataCategories.length + 1)) * ci + 7
             )
             .attr("y", scaleY(len))
-            .style("fill", categoryColors[cat][0])
+            .style("fill", rectSelActive ? "grey" : categoryColors[cat][0])
+            .style("stroke", "black")
+            .style("stroke-width", 0);
+
+          histEl
+            .append("rect")
+            .attr("width", 10)
+            .attr("height", scaleY(0) - scaleY(lenR))
+            .attr(
+              "x",
+              (containerSizes.w / (dataCategories.length + 1)) * ci + 7
+            )
+            .attr("y", scaleY(lenR))
+            .style("fill", categoryColors[cat][1])
             .style("stroke", "black")
             .style("stroke-width", 0);
         }
       });
     }
-  }, [scaleY]);
+  }, [scaleY, livRectData]);
 
   return (
     <div

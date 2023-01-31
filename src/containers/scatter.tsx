@@ -9,6 +9,9 @@ import {
   SDataRefExtent,
   SCategorySelection,
   SSizesScatter,
+  SRectangleDrawing,
+  SRectangleSelection,
+  SRectangleActive,
 } from "../state";
 import * as d3 from "d3";
 
@@ -29,13 +32,18 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
 
   const refPointCanvas = useRef<HTMLCanvasElement | null>(null);
 
-  const histSize = 80;
-  const histM = 5;
+  const [rectDrawing, setRectDrawing] = useRecoilState(SRectangleDrawing);
+  const [rectSelection, setRectSelection] = useRecoilState(SRectangleSelection);
+  const [rectActive, setRectActive] = useRecoilState(SRectangleActive);
+
+  const histSize = 0;
+  const histM = 0;
   const chartM = 5;
 
   const refChart = useRef<SVGSVGElement | null>(null);
   const refHistX = useRef<SVGSVGElement | null>(null);
   const refHistY = useRef<SVGSVGElement | null>(null);
+  const refRectSelection = useRef<SVGSVGElement | null>(null);
 
   const scatterSize = useMemo(() => {
     return [
@@ -79,12 +87,22 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
       .domain([dataExtent[0], dataExtent[1]])
       .range([chartM, scatterSize[0] - 1 * chartM]);
   }, [dataExtent, scatterSize]);
-
-  // define scales for live data
   const scaleChartY = useMemo(() => {
     return scaleLinear()
       .domain([dataExtent[2], dataExtent[3]])
       .range([chartM, scatterSize[1] - 1 * chartM]);
+  }, [dataExtent, scatterSize]);
+
+  // define inverse scales for live data
+  const descaleChartX = useMemo(() => {
+    return scaleLinear()
+      .domain([chartM, scatterSize[0] - 1 * chartM])
+      .range([dataExtent[0], dataExtent[1]]);
+  }, [dataExtent, scatterSize]);
+  const descaleChartY = useMemo(() => {
+    return scaleLinear()
+      .domain([chartM, scatterSize[1] - 1 * chartM])
+      .range([dataExtent[2], dataExtent[3]]);
   }, [dataExtent, scatterSize]);
 
   const catBinMatrix: Map<Category, number[][]> = useMemo(() => {
@@ -271,6 +289,79 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
             height={scatterSize[1]}
             width={scatterSize[0]}
           />
+          <svg
+            ref={refRectSelection}
+            style={{
+              left: histSize + histM,
+              bottom: histSize + histM,
+              backgroundColor: "transparent",
+            }}
+            onClick={(e) => {
+              const [x, y] = [
+                e.clientX - containerSizes.x - histSize - histM,
+                e.clientY - containerSizes.y,
+              ];
+
+              if (!rectDrawing && rectActive) {
+                setRectActive(false);
+              } else if (!rectDrawing && !rectActive) {
+                // start drawing
+                setRectDrawing(true);
+                setRectActive(true);
+                setRectSelection([
+                  descaleChartX(x),
+                  descaleChartX(x),
+                  descaleChartY(y),
+                  descaleChartY(y),
+                ]);
+              } else if (rectDrawing && rectActive) {
+                setRectDrawing(false);
+                console.log("stop editing");
+              }
+            }}
+            onMouseMove={(e) => {
+              if (rectDrawing) {
+                console.log("draw update");
+                const [x, y] = [
+                  e.clientX - containerSizes.x - histSize - histM,
+                  e.clientY - containerSizes.y,
+                ];
+                setRectSelection([
+                  rectSelection[0],
+                  descaleChartX(x),
+                  rectSelection[2],
+                  descaleChartY(y),
+                ]);
+              }
+            }}
+            id="chart"
+            height={scatterSize[1]}
+            width={scatterSize[0]}
+          >
+            {rectActive && (
+              <g>
+                <rect
+                  x={scaleChartX(Math.min(rectSelection[0], rectSelection[1]))}
+                  y={scaleChartY(Math.min(rectSelection[2], rectSelection[3]))}
+                  width={Math.abs(
+                    scaleChartX(rectSelection[1]) -
+                      scaleChartX(rectSelection[0])
+                  )}
+                  height={Math.abs(
+                    scaleChartY(rectSelection[3]) -
+                      scaleChartY(rectSelection[2])
+                  )}
+                  fill="grey"
+                  fillOpacity={0.2}
+                />
+                <text x={5} y={scatterSize[1] - 10}>
+                  {`selection by coordinates ${rectSelection
+                    .map((r) => r.toPrecision(2))
+                    .join(",")}`}
+                </text>
+              </g>
+            )}
+          </svg>
         </>
       )}
     </div>

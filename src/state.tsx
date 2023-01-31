@@ -102,6 +102,46 @@ export const SCategorySelection = atom<Category[]>({
 });
 
 /**
+ * Handling brushing
+ */
+export const SRectangleSelection = atom<[number, number, number, number]>({
+  key: "rectangleSelection",
+  default: [0, 0, 0, 0],
+});
+export const SRectangleDrawing = atom<boolean>({
+  key: "rectangleDrawing",
+  default: false,
+});
+
+export const SRectangleActive = atom<boolean>({
+  key: "rectangleActive",
+  default: false,
+});
+
+export const SRectangleLivData = selector<IDataPointLiv[]>({
+  key: "rectangleLivData",
+  get: ({ get }) => {
+    const data = get(SDataLivFiltered);
+    const rectSelection = get(SRectangleSelection);
+    const active = get(SRectangleActive);
+
+    if (active) {
+      const [minX, maxX, minY, maxY] = [
+        Math.min(rectSelection[0], rectSelection[1]),
+        Math.max(rectSelection[0], rectSelection[1]),
+        Math.min(rectSelection[2], rectSelection[3]),
+        Math.max(rectSelection[2], rectSelection[3]),
+      ];
+      return data.filter(
+        (d) => d.x > minX && d.x < maxX && d.y > minY && d.y < maxY
+      );
+    } else {
+      return [];
+    }
+  },
+});
+
+/**
  * Handling time filtering
  */
 

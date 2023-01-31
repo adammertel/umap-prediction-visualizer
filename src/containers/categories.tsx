@@ -324,6 +324,8 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
           b.x0 || 1,
         ]);
 
+        const axisY = d3.axisLeft(yScale).ticks(5);
+
         el.append("path")
           .style("stroke", "white")
           .style("stroke-width", 1)
@@ -356,6 +358,11 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
           .attr("x", wViolin / 2 - 30)
           .attr("y", 10)
           .text(label);
+
+        el.append("g")
+          .attr("transform", `translate(${wViolin / 2}, ${0})`)
+          .attr("class", "axis-lines")
+          .call(axisY);
       }
     };
     drawViolin(refViolin1, violin1Y, "x", noBins, "violin-x", "X distribution");

@@ -55,7 +55,8 @@ export const DataLoader: React.FunctionComponent<IDataLoaderProps> = ({}) => {
         Math.max(...parsedData.map((d: any) => d.date.getTime()))
       );
 
-      setTimeSelection([minDate, maxDate]);
+      // setTimeSelection([minDate, maxDate]);
+      setTimeSelection([minDate, minDate]);
       setDataLiv(parsedData);
 
       setLoadedRef(true);

@@ -1,4 +1,12 @@
-import { select, contourDensity, scaleLinear, geoPath } from "d3";
+import {
+  select,
+  contourDensity,
+  scaleLinear,
+  geoPath,
+  curveCatmullRom,
+  area,
+} from "d3";
+import * as d3 from "d3";
 import React, { useEffect, useMemo, useRef } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
@@ -44,20 +52,29 @@ interface ICategoryProps {
 const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
   dataCategory,
 }) => {
-  const w = 400;
   const h = 300;
   const hLabel = 25;
   const m = 10;
   const sChart = h - hLabel - 2 * m;
 
+  const mViolin = 20;
+  const wViolin = 75;
+  const hViolinLabel = 15;
+  const hViolin = sChart + hViolinLabel;
+
   const refChart = useRef<SVGSVGElement | null>(null);
   const refChartCanvasAll = useRef<HTMLCanvasElement | null>(null);
   const refChartCanvasSel = useRef<HTMLCanvasElement | null>(null);
+
+  const refViolin1 = useRef<SVGSVGElement | null>(null);
+  const refViolin2 = useRef<SVGSVGElement | null>(null);
 
   const refData = useRecoilValue(SDataRef);
   const livSelData = useRecoilValue(SDataLivSelected);
   const livAllData = useRecoilValue(SDataLiv);
   const dataExtent = useRecoilValue(SDataLivExtent);
+
+  const w = m + sChart + mViolin + wViolin + mViolin + wViolin + mViolin + m;
 
   const catColor = categoryColors[dataCategory];
 
@@ -86,6 +103,19 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
   const chartY = scaleLinear()
     .domain([dataExtent[2], dataExtent[3]])
     .range([0, sChart]);
+
+  // violin scales
+  const violin1Y = scaleLinear()
+    .domain([dataExtent[0], dataExtent[1]])
+    .range([hViolinLabel, hViolin]);
+
+  const violin2Y = scaleLinear()
+    .domain([dataExtent[2], dataExtent[3]])
+    .range([hViolinLabel, hViolin]);
+
+  const violinXLiv = scaleLinear()
+    .domain([0, 100])
+    .range([wViolin / 2, 0]);
 
   const contours = contourDensity()
     .x((d) => chartX(d[0]))
@@ -157,7 +187,7 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
       const ctx = canvasEl?.node()?.getContext("2d");
       if (ctx) {
         ctx.clearRect(0, 0, sChart, sChart);
-        ctx.globalAlpha = 0.5;
+        ctx.globalAlpha = 0.15;
         ctx.globalCompositeOperation = "multiply";
         ctx.strokeStyle = "black";
         ctx.lineWidth = 0;
@@ -214,6 +244,118 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
     }
   }, [catDataLivAll]);
 
+  // draw violins
+  useEffect(() => {
+    const noBins = 30;
+    const middleLineW = 1;
+    const curve = d3.curveMonotoneX;
+
+    const drawViolin = (
+      refEl: any,
+      yScale: any,
+      dim: "x" | "y",
+      noBins: number,
+      className: string,
+      label: string
+    ) => {
+      const svgEl = select(refEl.current);
+
+      const refBinsX = d3
+        .bin()
+        .domain(yScale.domain() as [number, number])
+        .thresholds(yScale.ticks(noBins))
+        .value((d) => d)(catDataRef.map((d: any) => d[dim]));
+
+      const livAllBinsX = d3
+        .bin()
+        .domain(yScale.domain() as [number, number])
+        .thresholds(yScale.ticks(noBins))
+        .value((d) => d)(catDataLivAll.map((d: any) => d[dim]));
+
+      const livSelBinsX = d3
+        .bin()
+        .domain(yScale.domain() as [number, number])
+        .thresholds(yScale.ticks(noBins))
+        .value((d) => d)(catDataLivSel.map((d: any) => d[dim]));
+
+      const longestBinRef = d3.max(refBinsX.map((a) => a.length));
+      const longestBinLiv = d3.max(livAllBinsX.map((a) => a.length));
+
+      if (longestBinRef && longestBinLiv && svgEl && dataReady) {
+        svgEl.selectAll(`.${className}`).remove();
+        const el = svgEl.append("g").attr("class", className);
+
+        const violinXRef = scaleLinear()
+          .domain([0, longestBinRef])
+          .range([wViolin / 2 + middleLineW / 2, wViolin]);
+
+        const violinXLiv = scaleLinear()
+          .domain([0, longestBinLiv])
+          .range([wViolin / 2 + middleLineW / 2, 0]);
+
+        const refArea = area()
+          .x0((d: any) => violinXRef(0))
+          .x1((d: any) => violinXRef(d[0]))
+          .y((d: any) => yScale(d[1]))
+          .curve(curve);
+
+        const livArea = area()
+          .x0((d: any) => violinXLiv(0))
+          .x1((d: any) => violinXLiv(d[0]))
+          .y((d: any) => yScale(d[1]))
+          .curve(curve);
+
+        const dataRefBins: [number, number][] = refBinsX.map((b) => [
+          b.length,
+          b.x0 || 1,
+        ]);
+        const dataLivBinsAll: [number, number][] = livAllBinsX.map((b) => [
+          b.length,
+          b.x0 || 1,
+        ]);
+        const dataLivBinsSel: [number, number][] = livSelBinsX.map((b) => [
+          b.length,
+          b.x0 || 1,
+        ]);
+
+        el.append("path")
+          .style("stroke", "white")
+          .style("stroke-width", 1)
+          .style("fill", catColor[1])
+          .attr("d", (d: any) => refArea(dataRefBins));
+
+        el.append("path")
+          .style("stroke", "white")
+          .style("stroke-width", 1)
+          .style("fill", "darkgrey")
+          .attr("d", (d: any) => livArea(dataLivBinsAll));
+
+        el.append("path")
+          .style("stroke", "none")
+          .style("fill", "red")
+          .attr("d", (d: any) => livArea(dataLivBinsSel));
+
+        el.append("line")
+          .style("stroke", "white")
+          .style("stroke-width", middleLineW)
+          .attr("x1", wViolin / 2)
+          .attr("x2", wViolin / 2)
+          .attr("y1", hViolinLabel)
+          .attr("y2", hViolin);
+        el.append("text")
+          .style("fill", "black")
+          .style("font-weight", 600)
+          .style("font-size", 10)
+          .style("stroke-width", 1)
+          .attr("x", wViolin / 2 - 20)
+          .attr("y", 10)
+          .text(label);
+      }
+    };
+    drawViolin(refViolin1, violin1Y, "x", noBins, "violin-x", "X distribution");
+    drawViolin(refViolin2, violin2Y, "y", noBins, "violin-y", "Y distribution");
+  }, [catDataRef, catDataLivAll, catDataLivSel]);
+
   return (
     <div
       className="category-panel"
@@ -264,6 +406,27 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
           margin: m,
           top: hLabel,
           left: 0,
+        }}
+      />
+
+      <svg
+        ref={refViolin1}
+        className="category-violin category-violin-1"
+        width={wViolin}
+        height={hViolin}
+        style={{
+          bottom: m,
+          left: sChart + m + m,
+        }}
+      />
+      <svg
+        ref={refViolin2}
+        className="category-violin category-violin-2"
+        width={wViolin}
+        height={hViolin}
+        style={{
+          bottom: m,
+          left: sChart + mViolin + wViolin + mViolin,
         }}
       />
     </div>

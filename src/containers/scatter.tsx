@@ -55,7 +55,7 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
     );
   }, [dataExtent]);
 
-  const noBins = 100;
+  const noBins = 75;
 
   const oneBinX = useMemo(() => {
     return (dataExtent[1] - dataExtent[0]) / noBins;
@@ -171,7 +171,8 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
 
                   .attr("width", oneBinW)
                   .attr("height", oneBinH)
-                  .attr("stroke-width", 1)
+                  .attr("stroke-width", 0.5)
+                  .attr("stroke", "white")
                   //.attr("stroke", categoryColors[binCategory as Category][0])
                   .attr("fill", categoryColors[binCategory as Category][0]);
               }
@@ -194,8 +195,8 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
       const ctx = canvasEl?.node()?.getContext("2d");
       if (ctx) {
         ctx.clearRect(0, 0, scatterSize[0], scatterSize[1]);
-        ctx.globalAlpha = 0.25;
-        ctx.globalCompositeOperation = "multiply";
+        ctx.globalAlpha = 1;
+        //ctx.globalCompositeOperation = "multiply";
         ctx.strokeStyle = "black";
         ctx.lineWidth = 0.2;
 

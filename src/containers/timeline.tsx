@@ -136,8 +136,9 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
         el.append("path")
           .attr("class", `timeline-area timeline-area-${cat}`)
           .style("fill", categoryColors[cat as Category][0])
-          .style("stroke-width", 1)
-          .style("stroke", categoryColors[cat as Category][1])
+          .style("stroke-width", 0.5)
+          // .style("stroke", categoryColors[cat as Category][1])
+          .style("stroke", "white")
           .attr("d", area(stackedCatData as any));
       });
     }

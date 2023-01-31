@@ -109,28 +109,6 @@ canvas {
     }
   }
 
-  input[type="range"] {
-    -webkit-appearance: none;
-    color: $COLOR_PRIMARY;
-    background-color: $COLOR_PRIMARY;
-    border-radius: 20px;
-    height: 10px;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    height: 15px;
-    width: 15px;
-    border-radius: 15px;
-    background: $COLOR_PRIMARY;
-    cursor: pointer;
-    -webkit-appearance: none;
-  }
-  input[type="range"]::-webkit-slider-runnable-track {
-    background: $COLOR_WHITE;
-    height: 15px;
-    border-radius: 10px;
-    margin-top: 0;
-  }
-
   #section-selector {
     margin-left: 30px;
 
@@ -163,6 +141,13 @@ canvas {
 
     .category-chart {
       background-color: white;
+    }
+  }
+  .category-violin {
+    path {
+      stroke-linejoin: round;
+      stroke-miterlimit: 0;
+      stroke-linecap: round;
     }
   }
 }

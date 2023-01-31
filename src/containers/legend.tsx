@@ -93,7 +93,7 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
             .append("rect")
             .attr("width", 10)
             .attr("height", scaleY(0) - scaleY(lenR))
-            .attr("x", histW * ci + 5)
+            .attr("x", oneItemW * ci + 5)
             .attr("y", scaleY(lenR))
             .style("fill", categoryColors[cat][1])
             .style("stroke", "black")

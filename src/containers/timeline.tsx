@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
+  SCategorySelection,
   SDataCategories,
   SDataLiv,
   SDataTimeExtent,
@@ -31,6 +32,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
 
   const timeIntervals = useRecoilValue(STimeIntervals);
   const maxInTimeIntervals = useRecoilValue(SMaxInTimeIntervals);
+  const dataCategoriesSel = useRecoilValue(SCategorySelection);
 
   const timeExtent = useRecoilValue(STimeExtent);
   const [timeSelection, setTimeSelection] = useRecoilState(STimeSelection);
@@ -98,7 +100,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
 
   const stackedTimelineData = useMemo(() => {
     const stackedData: any = {};
-    dataCategories.forEach((cat) => {
+    dataCategoriesSel.forEach((cat) => {
       stackedData[cat] = [];
     });
 
@@ -108,7 +110,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
       );
 
       let timePointSum = 0;
-      dataCategories.forEach((cat) => {
+      dataCategoriesSel.forEach((cat) => {
         const dataCatInInterval = dataTimeInterval.filter((d) => d.cat === cat);
 
         stackedData[cat].push([
@@ -122,7 +124,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
     });
 
     return stackedData;
-  }, [dataLiv, scaleX, timeIntervals.length]);
+  }, [dataLiv, scaleX, timeIntervals.length, dataCategoriesSel]);
 
   //const [timelineEl, setTimelineEl] = useState<any>(false);
   useEffect(() => {

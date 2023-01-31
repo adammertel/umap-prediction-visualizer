@@ -64,6 +64,8 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
       svgEl.selectAll(`.legend-hist`).remove();
       const histEl = svgEl.append("g").attr("class", "legend-hist");
 
+      const axisY = d3.axisRight(scaleY).ticks(5);
+
       dataCategories.forEach((cat, ci) => {
         const sel = dataCategoriesSel.includes(cat);
         if (sel) {
@@ -97,6 +99,12 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
             .style("stroke-width", 0);
         }
       });
+
+      histEl
+        .append("g")
+        .attr("transform", `translate(${0}, ${-1})`)
+        .attr("class", "axis-lines")
+        .call(axisY);
     }
   }, [scaleY, livRectData]);
 

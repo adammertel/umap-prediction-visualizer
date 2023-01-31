@@ -353,7 +353,7 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
           .style("font-weight", 600)
           .style("font-size", 10)
           .style("stroke-width", 1)
-          .attr("x", wViolin / 2 - 20)
+          .attr("x", wViolin / 2 - 30)
           .attr("y", 10)
           .text(label);
       }

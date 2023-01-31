@@ -15,6 +15,11 @@ import { scaleLinear, select } from "d3";
 import { Categories } from "./categories";
 import { Category, categoryColors } from "../variables";
 
+import { getTrackBackground, Range } from "react-range";
+import noUiSlider from "nouislider";
+import "nouislider/dist/nouislider.css";
+import { ITrackBackground } from "react-range/lib/types";
+
 interface ITimelineProps {}
 
 const sliderH = 30;
@@ -39,6 +44,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
     [containerSizes.h]
   );
 
+  const refTimelineSlider = useRef<HTMLInputElement | null>(null);
   const refTimeline = useRef<SVGSVGElement | null>(null);
   const svgEl = useMemo(() => {
     const svg = d3.select(refTimeline.current);
@@ -135,7 +141,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
       //timelineEl.remove();
       const el = svgEl.append("g").attr("class", "timeline-selection");
 
-      const lineX = scaleX(timeSelection);
+      const lineX = scaleX(timeSelection[0]);
 
       el.append("line")
         .attr("class", `timeline-selection-line`)
@@ -163,12 +169,14 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
     timeIntervals.length,
   ]);
 
+  // time slider
+
   const selectedValueLabelX = useMemo<number>(() => {
     const minX = 20;
     const maxX = containerSizes.w - 120;
     const x =
       (containerSizes.w / timeIntervals.length) *
-        timeIntervals.indexOf(timeSelection) -
+        timeIntervals.indexOf(timeSelection[0]) -
       100;
 
     if (x < minX) {
@@ -179,6 +187,22 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
     }
     return x;
   }, [containerSizes.w, timeIntervals.length, timeSelection.valueOf()]);
+
+  const sliderSelectionPosition = useMemo(() => {
+    const positions = [0, 10];
+
+    const sel0Val = timeSelection[0].valueOf();
+    const sel1Val = timeSelection[1].valueOf();
+    timeIntervals.forEach((ti, i: number) => {
+      if (ti.valueOf() === sel0Val) {
+        positions[0] = i;
+      }
+      if (ti.valueOf() === sel1Val) {
+        positions[1] = i;
+      }
+    });
+    return positions;
+  }, [timeSelection, timeIntervals]);
 
   return (
     <div
@@ -201,47 +225,104 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
           height={timeLineH}
         />
       )}
-      <div id="timeslider" style={{}}>
-        <input
-          id="timeslider-input"
-          style={{
-            left: chartMX - 10,
-            right: chartMX - 10,
-            width: containerSizes.w - chartMX - 5,
-            top: timeLineH - 5,
-          }}
-          type="range"
-          min={0}
-          max={timeIntervals.length - 1}
-          value={timeIntervals.indexOf(timeSelection)}
-          onChange={(e) =>
-            setTimeSelection(timeIntervals[parseInt(e.target.value)])
-          }
-        ></input>
-        <div id="timeslider-minmax-labels">
+      <Range
+        values={sliderSelectionPosition}
+        draggableTrack
+        step={1}
+        min={0}
+        max={timeIntervals.length - 1}
+        onChange={(values) => {
+          //setTimeSelection(timeIntervals[parseInt(e.target.value)])
+          console.log(values);
+          setTimeSelection(
+            values.map((val) => timeIntervals[val]) as [Date, Date]
+          );
+        }}
+        renderTrack={({ props, children }) => (
           <div
-            className="timeslider-label-min timeslider-label"
-            style={{ top: timeLineH + 5 }}
+            onMouseDown={props.onMouseDown}
+            onTouchStart={props.onTouchStart}
+            style={{
+              ...props.style,
+              left: chartMX,
+              right: chartMX,
+              width: containerSizes.w - 2 * chartMX,
+              top: timeLineH,
+              position: "absolute",
+            }}
           >
-            {dataTimeExtent[0].toLocaleString("en-GB", { timeZone: "CET" })}
+            <div
+              ref={props.ref}
+              style={{
+                height: "5px",
+                width: "100%",
+                borderRadius: "4px",
+                background: getTrackBackground({
+                  values: sliderSelectionPosition,
+                  colors: ["#ccc", "#548BF4", "#ccc"],
+                  min: 0,
+                  max: timeIntervals.length - 1,
+                }),
+                alignSelf: "center",
+              }}
+            >
+              {children}
+            </div>
           </div>
+        )}
+        renderThumb={({ props, isDragged }) => (
           <div
-            className="timeslider-label-max timeslider-label"
-            style={{ top: timeLineH + 5 }}
+            {...props}
+            style={{
+              ...props.style,
+            }}
           >
-            {dataTimeExtent[1].toLocaleString("en-GB", { timeZone: "CET" })}
+            <div
+              style={{
+                height: "16px",
+                width: "5px",
+                backgroundColor: isDragged ? "blue" : "white",
+              }}
+            />
           </div>
+        )}
+      />
+      <div
+        id="timeslider-input"
+        ref={refTimelineSlider}
+        style={{
+          left: chartMX - 10,
+          right: chartMX - 10,
+          width: containerSizes.w - chartMX - 5,
+          top: timeLineH - 5,
+        }}
+      ></div>
+      <div id="timeslider-minmax-labels">
+        <div
+          className="timeslider-label-min timeslider-label"
+          style={{ top: timeLineH + 5 }}
+        >
+          {dataTimeExtent[0].toLocaleString("en-GB", { timeZone: "CET" })}
         </div>
         <div
-          id="timeslider-selected-label"
-          style={{
-            top: 0,
-            left: selectedValueLabelX,
-          }}
+          className="timeslider-label-max timeslider-label"
+          style={{ top: timeLineH + 5 }}
         >
-          <div className="timeslider-label-min timeline-label">
-            {timeSelection.toLocaleString("en-GB", { timeZone: "CET" })}
-          </div>
+          {dataTimeExtent[1].toLocaleString("en-GB", { timeZone: "CET" })}
+        </div>
+      </div>
+      <div
+        id="timeslider-selected-label"
+        style={{
+          top: 0,
+          left: selectedValueLabelX,
+        }}
+      >
+        <div className="timeslider-label-min timeline-label">
+          {timeSelection[0].toLocaleString("en-GB", { timeZone: "CET" })}
+        </div>
+        <div className="timeslider-label-max timeline-label">
+          {timeSelection[1].toLocaleString("en-GB", { timeZone: "CET" })}
         </div>
       </div>
     </div>

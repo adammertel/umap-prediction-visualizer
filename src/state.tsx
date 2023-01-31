@@ -43,7 +43,11 @@ export const SDataLivSelected = selector<IDataPointLiv[]>({
     const data = get(SDataLiv);
     const selectedDate = get(STimeSelection);
 
-    return data.filter((d) => d.date.valueOf() === selectedDate.valueOf());
+    return data.filter(
+      (d) =>
+        d.date.valueOf() >= selectedDate[0].valueOf() &&
+        d.date.valueOf() <= selectedDate[1].valueOf()
+    );
   },
 });
 
@@ -96,9 +100,9 @@ export const STimeExtent = atom<[Date, Date]>({
   default: [new Date(), new Date()],
 });
 
-export const STimeSelection = atom<Date>({
+export const STimeSelection = atom<[Date, Date]>({
   key: "timeSelection",
-  default: new Date(),
+  default: [new Date(), new Date()],
 });
 
 export const SDataTimeExtent = selector<[Date, Date]>({

@@ -12,11 +12,13 @@ import {
   SRectangleDrawing,
   SRectangleSelection,
   SRectangleActive,
+  SScatterPoint,
+  SScatterPointActive,
 } from "../state";
 import * as d3 from "d3";
 
 import { scaleLinear, scaleSqrt } from "d3-scale";
-import { Category, categoryColors } from "../variables";
+import { Category, categoryColors, colors } from "../variables";
 import { select } from "d3";
 
 interface IScatterProps {}
@@ -35,6 +37,8 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   const [rectDrawing, setRectDrawing] = useRecoilState(SRectangleDrawing);
   const [rectSelection, setRectSelection] = useRecoilState(SRectangleSelection);
   const [rectActive, setRectActive] = useRecoilState(SRectangleActive);
+  const [sPoint, setSPoint] = useRecoilState(SScatterPoint);
+  const [sPointActive, setSPointActive] = useRecoilState(SScatterPointActive);
 
   const histSize = 25;
   const histM = 0;
@@ -359,6 +363,11 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
               left: histSize + histM,
               bottom: histSize + histM,
               backgroundColor: "transparent",
+              cursor: rectActive
+                ? rectDrawing
+                  ? "pointer"
+                  : "grab"
+                : "crosshair",
             }}
             onClick={(e) => {
               const [x, y] = [
@@ -384,12 +393,17 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
               }
             }}
             onMouseMove={(e) => {
+              const [x, y] = [
+                e.clientX - containerSizes.x - histSize - histM,
+                e.clientY - containerSizes.y,
+              ];
+
+              console.log("mousemove");
+              setSPointActive(true);
+              setSPoint([descaleChartX(x), descaleChartY(y)]);
+
               if (rectDrawing) {
                 console.log("draw update");
-                const [x, y] = [
-                  e.clientX - containerSizes.x - histSize - histM,
-                  e.clientY - containerSizes.y,
-                ];
                 setRectSelection([
                   rectSelection[0],
                   descaleChartX(x),
@@ -398,10 +412,31 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
                 ]);
               }
             }}
+            onMouseLeave={(e) => {
+              console.log("mouseout");
+              setSPointActive(false);
+            }}
             id="chart"
             height={scatterSize[1]}
             width={scatterSize[0]}
           >
+            {sPointActive && (
+              <g className="active-point">
+                <text
+                  x={scaleChartX(sPoint[0]) + 5}
+                  y={scaleChartY(sPoint[1]) - 5}
+                  fill={colors.background}
+                >
+                  {` ${sPoint.map((r) => r.toPrecision(2)).join(",")}`}
+                </text>
+                <circle
+                  cx={scaleChartX(sPoint[0])}
+                  cy={scaleChartY(sPoint[1])}
+                  fill={colors.background}
+                  r={2}
+                />
+              </g>
+            )}
             {rectActive && (
               <g>
                 <rect
@@ -415,8 +450,8 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
                     scaleChartY(rectSelection[3]) -
                       scaleChartY(rectSelection[2])
                   )}
-                  fill="grey"
-                  fillOpacity={0.2}
+                  fill={colors.secondary1}
+                  fillOpacity={0.5}
                 />
                 <text x={5} y={scatterSize[1] - 10}>
                   {`selection by coordinates ${rectSelection

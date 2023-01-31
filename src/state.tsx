@@ -118,6 +118,16 @@ export const SRectangleActive = atom<boolean>({
   default: false,
 });
 
+export const SScatterPoint = atom<[number, number]>({
+  key: "scatterPoint",
+  default: [0, 0],
+});
+
+export const SScatterPointActive = atom<boolean>({
+  key: "scatterPointActive",
+  default: false,
+});
+
 export const SRectangleLivData = selector<IDataPointLiv[]>({
   key: "rectangleLivData",
   get: ({ get }) => {

@@ -354,7 +354,7 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
         el.append("text")
           .style("fill", colors.white)
           .style("font-weight", 600)
-          .style("font-size", 10)
+          .style("font-size", 9)
           .style("stroke-width", 1)
           .attr("x", wViolin / 2 - 30)
           .attr("y", 10)

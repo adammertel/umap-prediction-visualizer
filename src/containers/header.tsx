@@ -18,7 +18,7 @@ export const Header: React.FunctionComponent<IHeaderProps> = ({}) => {
         height: containerSizes.h,
       }}
     >
-      <h1 className="heading-text">UMAP Learning explorer</h1>
+      <h1 className="heading-text">UMAP Learning Explorer</h1>
     </div>
   );
 };

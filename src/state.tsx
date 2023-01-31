@@ -231,7 +231,7 @@ const SIZE_SETTINGS = {
   CONTAINER_M: 5,
   CATEGORY_W: 500,
   CATEGORY_H: 300,
-  LEGEND_W: 250,
+  LEGEND_W: 280,
 };
 
 export const SAppW = atom<number>({

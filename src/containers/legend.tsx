@@ -38,10 +38,18 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
     useRecoilState(SCategorySelection);
 
   const refHist = useRef<SVGSVGElement | null>(null);
+  const refHistAxis = useRef<SVGSVGElement | null>(null);
 
-  const containerM = 10;
+  const containerM = 20;
+  const histML = 30;
   const headingH = 50;
-  const histH = 300;
+  const histH =
+    containerSizes.h > 500 + headingH + containerM
+      ? 300
+      : containerSizes.h - (headingH + containerM + 100);
+
+  const histW = containerSizes.w - 2 * containerM - histML;
+  const oneItemW = histW / dataCategories.length;
 
   const scaleY = useMemo(() => {
     let maxLen = 0;
@@ -59,12 +67,11 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
   // draw histogram
   useEffect(() => {
     const svgEl = d3.select(refHist.current);
+    const svgElAxis = d3.select(refHistAxis.current);
 
     if (svgEl) {
       svgEl.selectAll(`.legend-hist`).remove();
       const histEl = svgEl.append("g").attr("class", "legend-hist");
-
-      const axisY = d3.axisRight(scaleY).ticks(5);
 
       dataCategories.forEach((cat, ci) => {
         const sel = dataCategoriesSel.includes(cat);
@@ -76,10 +83,7 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
             .append("rect")
             .attr("width", 10)
             .attr("height", scaleY(0) - scaleY(len) - 2)
-            .attr(
-              "x",
-              (containerSizes.w / (dataCategories.length + 1)) * ci + 7
-            )
+            .attr("x", oneItemW * ci + 5)
             .attr("y", scaleY(len))
             .style("fill", rectSelActive ? "grey" : categoryColors[cat][0])
             .style("stroke", "black")
@@ -89,18 +93,27 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
             .append("rect")
             .attr("width", 10)
             .attr("height", scaleY(0) - scaleY(lenR))
-            .attr(
-              "x",
-              (containerSizes.w / (dataCategories.length + 1)) * ci + 7
-            )
+            .attr("x", histW * ci + 5)
             .attr("y", scaleY(lenR))
             .style("fill", categoryColors[cat][1])
             .style("stroke", "black")
             .style("stroke-width", 0);
         }
       });
+    }
+  }, [scaleY, livRectData]);
 
-      histEl
+  // draw axis
+  useEffect(() => {
+    const svgElAxis = d3.select(refHistAxis.current);
+
+    if (svgElAxis) {
+      svgElAxis.selectAll(`.legend-axis`).remove();
+      const histAxisEl = svgElAxis.append("g").attr("class", "legend-axis");
+
+      const axisY = d3.axisRight(scaleY).ticks(5);
+
+      histAxisEl
         .append("g")
         .attr("transform", `translate(${0}, ${-1})`)
         .attr("class", "axis-lines")
@@ -131,12 +144,24 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
       >
         Categories:
       </div>
-
       <svg
         ref={refHist}
         className="histogram"
-        width={containerSizes.w - 2 * containerM}
+        width={histW}
         height={histH}
+        style={{
+          top: headingH + containerM,
+          left: containerM + histML,
+          position: "absolute",
+          //backgroundColor: "red",
+        }}
+      />
+
+      <svg
+        ref={refHistAxis}
+        className="histogram"
+        width={histML + 20}
+        height={histH + 10}
         style={{
           top: headingH + containerM,
           left: containerM,
@@ -148,9 +173,9 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
         id="legend-list"
         style={{
           position: "absolute",
-          left: containerM,
+          left: containerM + histML,
           top: headingH + containerM + histH,
-          width: containerSizes.w - 2 * containerM,
+          width: histW,
         }}
       >
         {dataCategories.map((category, ci) => {
@@ -161,12 +186,8 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
               style={{
                 position: "absolute",
                 top: 10,
-                left:
-                  ((containerSizes.w - 2 * containerM) /
-                    dataCategories.length) *
-                  ci,
-                width:
-                  (containerSizes.w - 2 * containerM) / dataCategories.length,
+                left: oneItemW * ci,
+                width: oneItemW,
               }}
               key={ci}
               onClick={() => {

@@ -42,8 +42,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
   const chartMT = 35;
 
   const [instantTimeValues, setInstantTimeValues] = useState<[number, number]>([
-    0,
-    timeIntervals.length - 1,
+    0, 3,
   ]);
 
   const debounceTimeValues = useDebouncedCallback((values) => {

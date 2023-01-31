@@ -162,8 +162,6 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
       const axisX = d3.axisBottom(scaleChartX).ticks(15);
       const axisY = d3.axisLeft(scaleChartY).ticks(15);
 
-      console.log();
-
       axisXEl
         .append("g")
         .attr("transform", `translate(${0}, ${2})`)
@@ -398,12 +396,10 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
                 e.clientY - containerSizes.y,
               ];
 
-              console.log("mousemove");
               setSPointActive(true);
               setSPoint([descaleChartX(x), descaleChartY(y)]);
 
               if (rectDrawing) {
-                console.log("draw update");
                 setRectSelection([
                   rectSelection[0],
                   descaleChartX(x),
@@ -413,7 +409,6 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
               }
             }}
             onMouseLeave={(e) => {
-              console.log("mouseout");
               setSPointActive(false);
             }}
             id="chart"

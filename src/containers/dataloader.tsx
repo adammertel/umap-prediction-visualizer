@@ -50,15 +50,15 @@ export const DataLoader: React.FunctionComponent<IDataLoaderProps> = ({}) => {
         };
       });
 
-      const minDate = new Date(
-        Math.min(...parsedData.map((d: any) => d.date.getTime()))
-      );
-      const maxDate = new Date(
-        Math.max(...parsedData.map((d: any) => d.date.getTime()))
-      );
+      const dateUnique = [
+        //@ts-ignore
+        ...new Set(parsedData.map((d: any) => d.date.valueOf())),
+      ];
+
+      dateUnique.sort((a, b) => (a > b ? 1 : -1));
 
       // setTimeSelection([minDate, maxDate]);
-      setTimeSelection([minDate, minDate]);
+      setTimeSelection([new Date(dateUnique[0]), new Date(dateUnique[3])]);
       setCategories(Array.from(new Set(parsedData.map((d: any) => d.cat))));
       setDataLiv(parsedData);
 

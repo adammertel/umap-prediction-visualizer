@@ -33,8 +33,8 @@ export const Legend: React.FunctionComponent<ILegendProps> = ({}) => {
         height: containerSizes.h,
       }}
     >
+      <div id="legend-list-heading">Categories:</div>
       <div id="legend-list">
-        <div id="legend-list-heading">Categories:</div>
         {dataCategories.map((category, ci) => {
           const sel = dataCategoriesSel.includes(category);
           return (

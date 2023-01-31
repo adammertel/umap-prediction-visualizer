@@ -36,7 +36,7 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   const [rectSelection, setRectSelection] = useRecoilState(SRectangleSelection);
   const [rectActive, setRectActive] = useRecoilState(SRectangleActive);
 
-  const histSize = 0;
+  const histSize = 20;
   const histM = 0;
   const chartM = 5;
 
@@ -143,6 +143,37 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
     return catBins;
   }, [oneBinY, oneBinX, refData, dataCategoriesSel]);
 
+  // draw axes
+  useEffect(() => {
+    const svgElX = select(refHistX.current);
+    const svgElY = select(refHistY.current);
+
+    if (svgElX && svgElY && canvasReady) {
+      svgElX.selectAll(`.axis-x`).remove();
+      const axisXEl = svgElX.append("g").attr("class", "axis-x");
+
+      svgElY.selectAll(`.axis-y`).remove();
+      const axisYEl = svgElY.append("g").attr("class", "axis-y");
+
+      const axisX = d3.axisBottom(scaleChartX).ticks(15);
+      const axisY = d3.axisLeft(scaleChartY).ticks(15);
+
+      console.log();
+
+      axisXEl
+        .append("g")
+        .attr("transform", `translate(${0}, ${2})`)
+        .attr("class", "axis-lines")
+        .call(axisX);
+
+      axisYEl
+        .append("g")
+        .attr("transform", `translate(${histSize - 2}, ${0})`)
+        .attr("class", "axis-lines")
+        .call(axisY);
+    }
+  }, [scaleChartX, scaleChartY]);
+
   // draw scatterplot
   useEffect(() => {
     const svgEl = select(refChart.current);
@@ -153,6 +184,35 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
       console.log("drawing bins");
 
       const scaleOpacity = scaleSqrt().domain([0, 100]).range([0, 1]);
+
+      // binsEl
+      //   .selectAll("line.grid-y")
+      //   .data(scaleChartY.ticks(noBins))
+      //   .enter()
+      //   .append("line")
+      //   .attr("class", "grid-y")
+      //   .attr("x1", 0)
+      //   .attr("x2", scatterSize[0])
+      //   .attr("y1", (d) => scaleChartY(d))
+      //   .attr("y2", (d) => scaleChartY(d))
+      //   .attr("fill", "none")
+      //   .attr("stroke", "grey")
+      //   .attr("stroke-width", 0.25);
+
+      // binsEl
+      //   .selectAll("line.grid-x")
+      //   .data(scaleChartX.ticks(noBins))
+      //   .enter()
+      //   .append("line")
+      //   .attr("class", "grid-x")
+      //   .attr("y1", 0)
+      //   .attr("y2", scatterSize[1])
+      //   .attr("x1", (d) => scaleChartX(d))
+      //   .attr("x2", (d) => scaleChartX(d))
+      //   .attr("fill", "none")
+      //   .attr("stroke", "grey")
+      //   .attr("stroke-width", 0.25);
+
       if (oneBinW > 0 && oneBinH > 0) {
         for (var binX = 0; binX < noBins; binX++) {
           const binExtentX = [
@@ -194,7 +254,11 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
                   .attr("stroke-width", 0.5)
                   .attr("stroke", "white")
                   //.attr("stroke", categoryColors[binCategory as Category][0])
-                  .attr("fill", categoryColors[binCategory as Category][0]);
+                  .attr(
+                    "fill",
+
+                    categoryColors[binCategory as Category][0]
+                  );
               }
 
               //categoryColors;

@@ -1,5 +1,8 @@
-$COLOR_PRIMARY: black;
-$COLOR_WHITE: white;
+$COLOR_SELECTION: #eb5e28;
+$COLOR_BACKGROUND: #252422;
+$COLOR_SECONDARY1: #403d39;
+$COLOR_UNSEECTED: #ccc5b9;
+$COLOR_WHITE: #fffcf2;
 
 html,
 body,
@@ -16,7 +19,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: darkslategrey;
+  background-color: $COLOR_BACKGROUND;
 }
 
 code {
@@ -34,7 +37,7 @@ code {
       margin: 0 auto;
     }
     .loader-text {
-      color: white;
+      color: $COLOR_WHITE;
       text-align: center;
     }
   }
@@ -48,7 +51,7 @@ code {
 #container-header {
   .heading-text {
     margin: 5px;
-    color: white;
+    color: $COLOR_WHITE;
     height: 100%;
   }
 }
@@ -60,10 +63,10 @@ code {
   }
 
   #chart {
-    background-color: white;
+    background-color: $COLOR_WHITE;
   }
   .axis-lines {
-    color: white;
+    color: $COLOR_WHITE;
   }
 }
 
@@ -84,9 +87,8 @@ canvas {
     width: 100%;
     .timeslider-label {
       position: absolute;
-      color: white;
+      color: $COLOR_WHITE;
       font-size: 12px;
-      margin: 10px;
       top: 0;
     }
     .timeslider-label-min {
@@ -103,7 +105,7 @@ canvas {
     position: absolute;
     font-size: 12px;
     font-weight: 600;
-    color: black;
+    color: $COLOR_SELECTION;
 
     .timeslider-selected-label {
       position: absolute;
@@ -117,7 +119,7 @@ canvas {
 
     #selector-title {
       font-weight: bold;
-      color: white;
+      color: $COLOR_WHITE;
     }
   }
 }
@@ -130,20 +132,23 @@ canvas {
   overflow-y: auto;
 
   .category-panel {
-    background-color: lightgrey;
+    background-color: $COLOR_SECONDARY1;
     border-radius: 5px;
     margin-bottom: 10px;
     margin-right: 10px;
     position: relative;
     .category-label {
+      color: white;
       margin-left: 10px;
       vertical-align: middle;
       font-weight: 600;
       font-size: 15px;
+      // text-shadow: 1px 0 $COLOR_WHITE, 0 1px $COLOR_WHITE, -1px 0 $COLOR_WHITE,
+      // 0 -1px $COLOR_WHITE;
     }
 
     .category-chart {
-      background-color: white;
+      background-color: $COLOR_WHITE;
     }
   }
   .category-violin {
@@ -154,7 +159,7 @@ canvas {
     }
 
     .axis-lines {
-      color: white;
+      color: $COLOR_WHITE;
     }
   }
 }
@@ -162,6 +167,7 @@ canvas {
 #container-legend {
   #legend-list-heading {
     font-weight: 600;
+    color: $COLOR_WHITE;
   }
   #legend-list {
     .legend-list-item {
@@ -182,6 +188,6 @@ canvas {
     }
   }
   .axis-lines {
-    color: white;
+    color: $COLOR_WHITE;
   }
 }

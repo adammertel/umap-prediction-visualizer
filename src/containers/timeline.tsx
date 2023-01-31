@@ -14,7 +14,7 @@ import {
 import * as d3 from "d3";
 import { scaleLinear, select } from "d3";
 import { Categories } from "./categories";
-import { Category, categoryColors } from "../variables";
+import { Category, categoryColors, colors } from "../variables";
 
 import { getTrackBackground, Range } from "react-range";
 import { ITrackBackground } from "react-range/lib/types";
@@ -23,7 +23,7 @@ import { useDebounce, useDebouncedCallback } from "use-debounce";
 
 interface ITimelineProps {}
 
-const sliderH = 30;
+const sliderH = 40;
 
 export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
   const containerSizes = useRecoilValue(SSizesTimeline);
@@ -38,7 +38,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
   const [timeSelection, setTimeSelection] = useRecoilState(STimeSelection);
 
   const dataLiv = useRecoilValue(SDataLiv);
-  const chartMX = 20;
+  const chartMX = 30;
   const chartMT = 35;
 
   const [instantTimeValues, setInstantTimeValues] = useState<[number, number]>([
@@ -143,9 +143,25 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
           .style("stroke", "white")
           .attr("d", area(stackedCatData as any));
       });
+
+      Object.entries(stackedTimelineData).forEach(([cat, stackedCatData]) => {
+        const activeStacked = (stackedCatData as any).filter(
+          (sd: any) =>
+            sd[0] >= timeIntervals[instantTimeValues[0]] &&
+            sd[0] <= timeIntervals[instantTimeValues[1]]
+        ) as any;
+
+        el.append("path")
+          .attr("class", `timeline-area timeline-area-${cat}`)
+          .style("fill", categoryColors[cat as Category][1])
+          .style("stroke-width", 0.5)
+          // .style("stroke", categoryColors[cat as Category][1])
+          .style("stroke", "white")
+          .attr("d", area(activeStacked as any));
+      });
     }
     //setTimelineEl(el);
-  }, [stackedTimelineData]);
+  }, [stackedTimelineData, instantTimeValues]);
 
   // selection line
   useEffect(() => {
@@ -164,7 +180,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
         .attr("x2", lineX0)
         .attr("y1", chartMT - 5)
         .attr("y2", timeLineH)
-        .style("stroke", "black")
+        .style("stroke", colors.selection)
         .style("stroke-width", 2.5);
 
       el.append("circle")
@@ -172,7 +188,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
         .attr("cx", lineX0)
         .attr("cy", chartMT - 5)
         .attr("r", 5)
-        .style("fill", "black")
+        .style("fill", colors.selection)
         .style("stroke-width", 0);
 
       el.append("line")
@@ -181,7 +197,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
         .attr("x2", lineX1)
         .attr("y1", chartMT - 5)
         .attr("y2", timeLineH)
-        .style("stroke", "black")
+        .style("stroke", colors.selection)
         .style("stroke-width", 2.5);
 
       el.append("circle")
@@ -189,7 +205,7 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
         .attr("cx", lineX1)
         .attr("cy", chartMT - 5)
         .attr("r", 5)
-        .style("fill", "black")
+        .style("fill", colors.selection)
         .style("stroke-width", 0);
     }
     //setTimelineEl(el);
@@ -204,18 +220,19 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
   const selectedValuesLabelXY = useMemo<
     [[number, number], [number, number]]
   >(() => {
+    const extraY = 12; // no pixels to move the potentially overlaid label up
     const minX = 20;
     const maxX = containerSizes.w - 120;
     return instantTimeValues.map((pi, i) => {
       const x =
         (containerSizes.w / timeIntervals.length) * pi - (i == 0 ? 100 : 0);
       if (x < minX) {
-        return [minX, i == 0 ? 0 : 10];
+        return [minX, i == 0 ? 0 : extraY];
       }
       if (x > maxX) {
-        return [maxX, i == 1 ? 0 : 10];
+        return [maxX, i == 1 ? 0 : extraY];
       }
-      return [x, 10];
+      return [x, extraY];
     }) as [[number, number], [number, number]];
   }, [containerSizes.w, timeIntervals.length, instantTimeValues]);
 
@@ -267,12 +284,12 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
             <div
               ref={props.ref}
               style={{
-                height: "5px",
+                height: "10px",
                 width: "100%",
-                borderRadius: "4px",
+                marginTop: "5px",
                 background: getTrackBackground({
                   values: instantTimeValues,
-                  colors: ["#ccc", "#548BF4", "#ccc"],
+                  colors: [colors.white, colors.selection, colors.white],
                   min: 0,
                   max: timeIntervals.length - 1,
                 }),
@@ -293,8 +310,8 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
             <div
               style={{
                 height: "16px",
-                width: "5px",
-                backgroundColor: isDragged ? "blue" : "white",
+                width: "10px",
+                backgroundColor: isDragged ? colors.white : colors.selection,
               }}
             />
           </div>
@@ -304,8 +321,8 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
         id="timeslider-input"
         ref={refTimelineSlider}
         style={{
-          left: chartMX - 10,
-          right: chartMX - 10,
+          left: chartMX,
+          right: chartMX,
           width: containerSizes.w - chartMX - 5,
           top: timeLineH - 5,
         }}
@@ -313,13 +330,13 @@ export const Timeline: React.FunctionComponent<ITimelineProps> = ({}) => {
       <div id="timeslider-minmax-labels">
         <div
           className="timeslider-label-min timeslider-label"
-          style={{ top: timeLineH + 5 }}
+          style={{ top: timeLineH + 20, left: chartMX }}
         >
           {dataTimeExtent[0].toLocaleString("en-GB", { timeZone: "CET" })}
         </div>
         <div
           className="timeslider-label-max timeslider-label"
-          style={{ top: timeLineH + 5 }}
+          style={{ top: timeLineH + 20, right: chartMX }}
         >
           {dataTimeExtent[1].toLocaleString("en-GB", { timeZone: "CET" })}
         </div>

@@ -20,7 +20,7 @@ import {
   SDataRef,
   SSizesCategories,
 } from "../state";
-import { Category, categoryColors } from "./../variables";
+import { Category, categoryColors, colors } from "./../variables";
 
 interface ICategoriesProps {}
 
@@ -166,7 +166,7 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
         .attr("y1", (d) => chartY(d))
         .attr("y2", (d) => chartY(d))
         .attr("fill", "none")
-        .attr("stroke", "grey")
+        .attr("stroke", colors.unselected)
         .attr("stroke-width", 0.25);
 
       svgEl
@@ -180,7 +180,7 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
         .attr("x1", (d) => chartX(d))
         .attr("x2", (d) => chartX(d))
         .attr("fill", "none")
-        .attr("stroke", "grey")
+        .attr("stroke", colors.unselected)
         .attr("stroke-width", 0.25);
     }
   }, [catDataRef]);
@@ -198,7 +198,7 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
         ctx.strokeStyle = "black";
         ctx.lineWidth = 0;
         //ctx.fillStyle = catColor[1];
-        ctx.fillStyle = "red";
+        ctx.fillStyle = colors.selection;
 
         catDataLivSel.forEach((pointData) => {
           ctx.beginPath();
@@ -327,31 +327,32 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
         const axisY = d3.axisLeft(yScale).ticks(5);
 
         el.append("path")
-          .style("stroke", "white")
+          .style("stroke", colors.white)
           .style("stroke-width", 1)
           .style("fill", catColor[1])
           .attr("d", (d: any) => refArea(dataRefBins));
 
         el.append("path")
-          .style("stroke", "white")
+          .style("stroke", colors.white)
           .style("stroke-width", 1)
-          .style("fill", "darkgrey")
+          .style("fill", colors.unselected)
           .attr("d", (d: any) => livArea(dataLivBinsAll));
 
         el.append("path")
           .style("stroke", "none")
-          .style("fill", "red")
+          .style("fill", colors.selection)
           .attr("d", (d: any) => livArea(dataLivBinsSel));
 
         el.append("line")
-          .style("stroke", "white")
+          .style("stroke", colors.white)
           .style("stroke-width", middleLineW)
           .attr("x1", wViolin / 2)
           .attr("x2", wViolin / 2)
           .attr("y1", hViolinLabel)
           .attr("y2", hViolin);
+
         el.append("text")
-          .style("fill", "black")
+          .style("fill", colors.white)
           .style("font-weight", 600)
           .style("font-size", 10)
           .style("stroke-width", 1)
@@ -381,9 +382,8 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
         className="category-label"
         style={{
           height: `${hLabel}px`,
-          color: catColor[1],
+          color: catColor[0],
           lineHeight: `${hLabel + m}px`,
-          textShadow: `1px 0 ${catColor[0]}, 0 1px ${catColor[0]}, -1px 0 ${catColor[0]}, 0 -1px ${catColor[0]}`,
         }}
       >
         {dataCategory}

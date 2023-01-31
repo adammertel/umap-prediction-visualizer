@@ -36,7 +36,7 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   const [rectSelection, setRectSelection] = useRecoilState(SRectangleSelection);
   const [rectActive, setRectActive] = useRecoilState(SRectangleActive);
 
-  const histSize = 20;
+  const histSize = 25;
   const histM = 0;
   const chartM = 5;
 

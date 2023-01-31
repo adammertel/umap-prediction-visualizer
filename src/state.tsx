@@ -215,7 +215,7 @@ export const STimeIntervals = selector<Date[]>({
 const SIZE_SETTINGS = {
   APP_P: 10,
   HEADER_H: 50,
-  TIMELINE_H: 150,
+  TIMELINE_H: 180,
   MENU_H: 0,
   SCATTER_W: 500,
   CONTAINER_M: 5,

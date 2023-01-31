@@ -155,11 +155,8 @@ canvas {
 #container-legend {
   #legend-list-heading {
     font-weight: 600;
-    margin: 15px;
   }
   #legend-list {
-    column-count: 10;
-    margin: 15px;
     .legend-list-item {
       cursor: pointer;
 
@@ -171,8 +168,8 @@ canvas {
 
       .legend-list-item-label {
         rotate: 90deg;
-        margin-left: 11px;
-        margin-top: -8px;
+        margin-left: 0px;
+        margin-top: 3px;
         white-space: nowrap;
       }
     }

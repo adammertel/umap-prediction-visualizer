@@ -8,6 +8,7 @@ import {
   SSizes,
   STimeExtent,
   STimeSelection,
+  SCategorySelection,
 } from "../state";
 import * as d3 from "d3";
 import ReactLoading from "react-loading";
@@ -20,6 +21,7 @@ export const DataLoader: React.FunctionComponent<IDataLoaderProps> = ({}) => {
 
   const setDataRef = useSetRecoilState(SDataRef);
   const setDataLiv = useSetRecoilState(SDataLiv);
+  const setCategories = useSetRecoilState(SCategorySelection);
 
   const sizes = useRecoilValue(SSizes);
 
@@ -57,6 +59,7 @@ export const DataLoader: React.FunctionComponent<IDataLoaderProps> = ({}) => {
 
       // setTimeSelection([minDate, maxDate]);
       setTimeSelection([minDate, minDate]);
+      setCategories(Array.from(new Set(parsedData.map((d: any) => d.cat))));
       setDataLiv(parsedData);
 
       setLoadedRef(true);

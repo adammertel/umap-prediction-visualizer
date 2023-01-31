@@ -3,6 +3,7 @@ import {
   Categories,
   DataLoader,
   Header,
+  Legend,
   Menu,
   Scatter,
   Timeline,
@@ -45,6 +46,7 @@ export const App: React.FunctionComponent<{}> = ({}) => {
           <Header />
           <Timeline />
           <Menu />
+          <Legend />
           <Scatter />
           <Categories />
         </>

@@ -151,3 +151,32 @@ canvas {
     }
   }
 }
+
+#container-legend {
+  #legend-list {
+    margin-left: 20px;
+    #legend-list-heading {
+      font-weight: 600;
+    }
+    display: block;
+    .legend-list-item {
+      display: block;
+      margin: 2px;
+      cursor: pointer;
+
+      .legend-list-item-icon {
+        display: inline;
+        vertical-align: middle;
+        margin-right: 5px;
+        svg {
+          margin-top: 3px;
+        }
+      }
+
+      .legend-list-item-label {
+        display: inline;
+        vertical-align: middle;
+      }
+    }
+  }
+}

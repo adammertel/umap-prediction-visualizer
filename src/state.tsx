@@ -37,16 +37,18 @@ export const SDataLoadedLiv = atom<boolean>({
   default: false,
 });
 
-export const SDataLivSelected = selector<IDataPointLiv[]>({
+export const SDataLivFiltered = selector<IDataPointLiv[]>({
   key: "dataLivSelected",
   get: ({ get }) => {
     const data = get(SDataLiv);
     const selectedDate = get(STimeSelection);
+    const selectedCats = get(SCategorySelection);
 
     return data.filter(
       (d) =>
         d.date.valueOf() >= selectedDate[0].valueOf() &&
-        d.date.valueOf() <= selectedDate[1].valueOf()
+        d.date.valueOf() <= selectedDate[1].valueOf() &&
+        selectedCats.includes(d.cat)
     );
   },
 });
@@ -89,6 +91,14 @@ export const SDataLivExtent = selector<[number, number, number, number]>({
       Math.max(...data.map((d) => d.y)),
     ];
   },
+});
+
+/**
+ * Handling category filtering
+ */
+export const SCategorySelection = atom<Category[]>({
+  key: "categorySelection",
+  default: [],
 });
 
 /**
@@ -171,6 +181,7 @@ const SIZE_SETTINGS = {
   CONTAINER_M: 5,
   CATEGORY_W: 500,
   CATEGORY_H: 300,
+  LEGEND_W: 250,
 };
 
 export const SAppW = atom<number>({
@@ -270,13 +281,37 @@ export const SSizesScatter = selector<ISizesContainer>({
     return {
       w: scatterS,
       h: scatterS,
-      x: SIZE_SETTINGS.APP_P,
+      x:
+        SIZE_SETTINGS.APP_P +
+        SIZE_SETTINGS.LEGEND_W +
+        1 * SIZE_SETTINGS.CONTAINER_M,
       y:
         SIZE_SETTINGS.APP_P +
         SIZE_SETTINGS.HEADER_H +
         SIZE_SETTINGS.MENU_H +
         SIZE_SETTINGS.TIMELINE_H +
         3 * SIZE_SETTINGS.CONTAINER_M,
+    };
+  },
+});
+export const SSizesLegend = selector<ISizesContainer>({
+  key: "sizesLegend",
+  get: ({ get }) => {
+    const sizes = get(SSizes);
+
+    const scatterS =
+      sizes.h -
+      (2 * SIZE_SETTINGS.APP_P +
+        SIZE_SETTINGS.HEADER_H +
+        SIZE_SETTINGS.MENU_H +
+        SIZE_SETTINGS.TIMELINE_H) -
+      3 * SIZE_SETTINGS.CONTAINER_M;
+
+    return {
+      w: SIZE_SETTINGS.LEGEND_W,
+      h: get(SSizesScatter).h,
+      x: SIZE_SETTINGS.APP_P,
+      y: get(SSizesScatter).y,
     };
   },
 });
@@ -290,12 +325,14 @@ export const SSizesCategories = selector<ISizesContainer>({
         sizes.w -
         get(SSizesScatter).w -
         2 * SIZE_SETTINGS.APP_P -
-        1 * SIZE_SETTINGS.CONTAINER_M,
+        2 * SIZE_SETTINGS.CONTAINER_M -
+        SIZE_SETTINGS.LEGEND_W,
       h: get(SSizesScatter).h,
       x:
         SIZE_SETTINGS.APP_P +
         get(SSizesScatter).w +
-        1 * SIZE_SETTINGS.CONTAINER_M,
+        2 * SIZE_SETTINGS.CONTAINER_M +
+        SIZE_SETTINGS.LEGEND_W,
       y: get(SSizesScatter).y,
     };
   },

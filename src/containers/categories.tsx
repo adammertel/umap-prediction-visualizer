@@ -12,10 +12,11 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import {
   IDataPointLiv,
   IDataPointRef,
+  SCategorySelection,
   SDataCategories,
   SDataLiv,
   SDataLivExtent,
-  SDataLivSelected,
+  SDataLivFiltered,
   SDataRef,
   SSizesCategories,
 } from "../state";
@@ -26,6 +27,7 @@ interface ICategoriesProps {}
 export const Categories: React.FunctionComponent<ICategoriesProps> = ({}) => {
   const containerSizes = useRecoilValue(SSizesCategories);
   const dataCategories = useRecoilValue(SDataCategories);
+  const dataCategoriesSel = useRecoilValue(SCategorySelection);
 
   return (
     <div
@@ -38,8 +40,12 @@ export const Categories: React.FunctionComponent<ICategoriesProps> = ({}) => {
         height: containerSizes.h,
       }}
     >
-      {dataCategories.map((dataCategory) => {
-        return <CategoryContainer dataCategory={dataCategory} />;
+      {dataCategories.map((dataCategory, di) => {
+        return (
+          dataCategoriesSel.includes(dataCategory) && (
+            <CategoryContainer key={di} dataCategory={dataCategory} />
+          )
+        );
       })}
     </div>
   );
@@ -70,7 +76,7 @@ const CategoryContainer: React.FunctionComponent<ICategoryProps> = ({
   const refViolin2 = useRef<SVGSVGElement | null>(null);
 
   const refData = useRecoilValue(SDataRef);
-  const livSelData = useRecoilValue(SDataLivSelected);
+  const livSelData = useRecoilValue(SDataLivFiltered);
   const livAllData = useRecoilValue(SDataLiv);
   const dataExtent = useRecoilValue(SDataLivExtent);
 

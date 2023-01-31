@@ -4,9 +4,10 @@ import {
   IDataPointLiv,
   SDataCategories,
   SDataLivExtent,
-  SDataLivSelected,
+  SDataLivFiltered,
   SDataRef,
   SDataRefExtent,
+  SCategorySelection,
   SSizesScatter,
 } from "../state";
 import * as d3 from "d3";
@@ -21,9 +22,10 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   const containerSizes = useRecoilValue(SSizesScatter);
   const dataExtent = useRecoilValue(SDataLivExtent);
   const dataCategories = useRecoilValue(SDataCategories);
+  const dataCategoriesSel = useRecoilValue(SCategorySelection);
 
   const refData = useRecoilValue(SDataRef);
-  const filteredData = useRecoilValue(SDataLivSelected);
+  const filteredData = useRecoilValue(SDataLivFiltered);
 
   const refPointCanvas = useRef<HTMLCanvasElement | null>(null);
 
@@ -88,8 +90,8 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
   const catBinMatrix: Map<Category, number[][]> = useMemo(() => {
     const catBins: Map<Category, number[][]> = new Map();
 
-    for (const ci in dataCategories) {
-      const cat = dataCategories[ci];
+    for (const ci in dataCategoriesSel) {
+      const cat = dataCategoriesSel[ci];
 
       const catData = refData.filter((d) => d.cat === cat);
 
@@ -121,7 +123,7 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
       catBins.set(cat, catBinValues);
     }
     return catBins;
-  }, [oneBinY, oneBinX, refData]);
+  }, [oneBinY, oneBinX, refData, dataCategoriesSel]);
 
   // draw scatterplot
   useEffect(() => {
@@ -221,7 +223,7 @@ export const Scatter: React.FunctionComponent<IScatterProps> = ({}) => {
       }
       console.log("drawing data points ended");
     }
-  }, [filteredData, oneBinW, oneBinH]);
+  }, [filteredData, oneBinW, oneBinH, dataCategoriesSel]);
 
   return (
     <div

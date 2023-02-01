@@ -33,7 +33,6 @@ The legend section has several functions. First, it is a guideline to identify c
 This is the primary section of the dashboards. The main function of the scatter plot is to display the live data of selected categories and time on top of the reference data. The scatterplot shows the reference data in the form of a heatmap - the functional UMAP space is first divided into bins of a given X and Y size. For each bin, the particular reference data points are identified. The cell is then colored based on the dominant category of the identified points. The opacity of the bin color depicts the number of data points of the dominant category. The heatmap is then covered by the circle symbols representing the live data points in the selected category and time. The use of the combination of two visualization methods, heatmap and circle symbols, improves the potential of visual comparison.
 The scatter plot allows the interaction of selecting a subset of live data points by drawing a rectangle. The rectangle drawing is activated by clicking the canvas. A second click confirms the selection, and a third click deactivates it.
 
-![image](https://user-images.githubusercontent.com/12932677/215915309-e78b81f4-9f05-4e04-87f1-a682643847db.png)
 ![image](https://user-images.githubusercontent.com/12932677/215915379-b052927b-0943-426a-8530-e0e6c2b143d7.png)
 
 

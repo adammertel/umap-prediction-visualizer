@@ -50,7 +50,8 @@ Selecting the fourth of September, we can see that despite the overall drop in d
 ![image](https://user-images.githubusercontent.com/12932677/215922673-7f0b3ffb-f4db-49db-8e9b-461f72f6dd6b.png)
 ![image](https://user-images.githubusercontent.com/12932677/215922825-555ff13f-7f16-4535-957e-559582778309.png)
 
-Moving the temporal filter to the sixth of September, we can instantly spot two inconsistencies between the reference and live data in the scatterplot. Both categories that were previously identified as overrepresented are forming separate spatial clusters which do not correspond to the reference data heatmap
+Moving the temporal filter to the sixth of September, we can instantly spot two inconsistencies between the reference and live data in the scatter plot. Both categories that were previously identified as overrepresented within the selected time window are forming separate spatial clusters not corresponding to the reference data heatmap.
+
 ![image](https://user-images.githubusercontent.com/12932677/215923383-fc29a513-95a9-47f0-8157-7524697b782a.png)
 
 We can confirm these findings in the category panels. Here we identify the accumulation of points outside the reference points' density contours. Plus, in the violin charts, we recognise that the reference and live data's X and Y coordinate distributions are not entirely fitting. At the same time, the area of selected (red) data points presents a strong deviation from the reference data.   

@@ -64,7 +64,7 @@ This substantial deviation may mean that the other live data of those two catego
 ![image](https://user-images.githubusercontent.com/12932677/215925304-80a2c805-cb9b-4c7a-b8d7-cd708e4b0697.png)
 
 
-This deviation of live data subset from the reference data may mean that (i) the training subset was chosen incorectly, omitting a certain subspaces, or (ii) the live data came with a new category which was not considered in the training process, or (iii) there is a specific problem considering the application of UMAP method to a subset of data within the identified time window.
+This deviation of the live data subset from the reference data may mean that (i) the training subset was chosen incorrectly, omitting certain subspaces, or (ii) the live data came with a new category that was not considered in the training process, or (iii) there is a specific problem considering the application of UMAP method to a subset of data within the identified time window.
 
 ### Technologies
 The application runs on react-create-app, Typescript, Recoil, and SCSS. D3 and vanilla HTML5 Canvas were used for the visualization components.
